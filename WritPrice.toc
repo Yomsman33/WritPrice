@@ -14,7 +14,7 @@
 ## X-Localizations: enUS, frFR
 ## X-Credits: AtlasLootClassic (GPL v2), pfQuest (MIT), community writ guides
 ## X-Website: https://github.com/Yomsman33/WritPrice
-# X-Curse-Project-ID: REPLACE_ME  (add "## " in front once the CurseForge project exists)
+## X-Curse-Project-ID: 1805983
 
 Locales\Locale.lua
 Locales\enUS.lua
