@@ -9,7 +9,7 @@ ns.OnLoad = {}
 ns.OnLocale = {} -- called when the language changes (options page, minimap tooltip, popups)
 ns.errorCount = 0
 
--- Game texts the addon matches against. WoW Forever ships an English client: they stay in English.
+-- Game texts the addon matches against. English client only for now (WoW Forever also ships other languages: see README).
 ns.GAME = {
   WRIT_PREFIX = "Craftsman's Writ",
   POUCH = "Coin Pouch",

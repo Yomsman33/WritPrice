@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Documentation: WritPrice needs the English game client for now (the README wrongly said WoW Forever is English-only). Support for other game languages is planned.
+
 ## 0.1.0 - 2026-11-14
 
 First public beta, for WoW Forever (client 1.60.1). Not yet widely tested in game: please report problems on the project page.

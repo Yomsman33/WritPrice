@@ -48,7 +48,7 @@ Type `/writs export`, press Ctrl+C and paste the text in a comment on the projec
 
 ## Known limits
 
-- Item, NPC and zone names are in English, and writ detection expects the English client (WoW Forever is English-only).
+- **For now WritPrice needs the game client in English.** WoW Forever also exists in other languages (French, German…), but writs, items, Coin Pouches and quest texts are recognized by their English names, so the auction house scan finds nothing on another client. Support for other game languages is planned for the next version. The addon's own interface is available in English and French.
 - Recipes come from Classic data (AtlasLootClassic, pfQuest): WoW Forever may differ for some of them.
 - Turn-in places and the writ list come from community guides and are not verified: the quest text in game always wins.
 - Prices are kept per realm and faction. Classic Era is not supported.
@@ -75,6 +75,8 @@ WritPrice scanne l'hôtel des ventes pour tous les Craftsman's Writs et l'objet 
 - Page de réglages (Options > AddOns > WritPrice) et icône sur la minicarte (clic gauche : fenêtre, clic droit : réglages).
 - Bourses de récompense enregistrées à chaque rendu (writ, PNJ, zone), médiane déduite du coût, partage avec la guilde et le groupe.
 - Interface en anglais ou en français : `/writs lang fr`.
+
+**Important : pour l'instant, le jeu lui-même doit être en anglais.** Les writs, les objets, les bourses et les textes de quête sont reconnus par leur nom anglais : avec le jeu en français, le scan de l'hôtel des ventes ne trouve rien. La prise en charge du jeu en français est prévue pour la prochaine version.
 
 Aide à améliorer les données : tape `/writs export`, copie (Ctrl+C) et colle le texte en commentaire sur la page du projet. Il ne contient que ce que l'addon a appris en jeu (lieux de rendu, quantités, rangs, bourses), rien de personnel.
 
