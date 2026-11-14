@@ -1,0 +1,12 @@
+package-as: WritPrice
+
+manual-changelog:
+  filename: CHANGELOG.md
+  markup-type: markdown
+
+ignore:
+  - dev
+  - README.md
+  - .pkgmeta
+  - .gitignore
+  - .github

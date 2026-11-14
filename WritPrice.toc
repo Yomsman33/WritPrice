@@ -1,0 +1,40 @@
+## Interface: 16001
+## Title: |cffffd100Writ|r|cffffffffPrice|r
+## Notes: Ranks Craftsman's Writs by cost per reputation point, from a targeted auction house scan. /writs
+## Notes-frFR: Classe les Craftsman's Writs par coût par point de réputation, à partir d'un scan ciblé de l'hôtel des ventes. /writs
+## Author: Yoms
+## Version: 0.1.0
+## SavedVariables: WritPriceDB
+## OptionalDeps: Auctionator
+## IconTexture: Interface\Icons\INV_Scroll_03
+## AddonCompartmentFunc: WritPrice_OnAddonCompartmentClick
+## AddonCompartmentFuncOnEnter: WritPrice_OnAddonCompartmentEnter
+## AddonCompartmentFuncOnLeave: WritPrice_OnAddonCompartmentLeave
+## X-License: GPL-2.0-only
+## X-Localizations: enUS, frFR
+## X-Credits: AtlasLootClassic (GPL v2), pfQuest (MIT), community writ guides
+## X-Website: https://github.com/Yomsman33/WritPrice
+# X-Curse-Project-ID: REPLACE_ME  (add "## " in front once the CurseForge project exists)
+
+Locales\Locale.lua
+Locales\enUS.lua
+Locales\frFR.lua
+Core.lua
+Recipes.lua
+Atr.lua
+Writs.lua
+Dests.lua
+Craft.lua
+Profs.lua
+Quests.lua
+Model.lua
+Scan.lua
+FullScan.lua
+Pouch.lua
+Share.lua
+Export.lua
+Tooltip.lua
+UI.lua
+Options.lua
+Minimap.lua
+Broker.lua
