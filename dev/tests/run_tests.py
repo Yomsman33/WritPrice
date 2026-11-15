@@ -44,7 +44,7 @@ for m in ([[AddDoubleLine AddLine ClearAllPoints ClearLines CreateFontString Cre
   SetDisplayMode SetFrameLevel SetFixedFrameStrata SetFixedFrameLevel SetTexture SetTexCoord SetHeight GetHeight GetCenter
   Raise SetOrientation SetThumbTexture SetMinMaxValues SetValueStep SetObeyStepOnDrag GetValue SetAutoFocus SetNumeric
   SetMaxLetters ClearFocus HasFocus IsEnabled GetFrameStrata SetToplevel GetThumbTexture SetHitRectInsets GetNormalTexture
-  GetCheckedTexture SetFontObject SetMovable SetMultiLine SetScrollChild]]):gmatch("%S+") do ALLOWED[m]=true end
+  GetCheckedTexture SetFontObject SetMovable SetMultiLine SetScrollChild GetStringWidth SetEnabled IsOwned]]):gmatch("%S+") do ALLOWED[m]=true end
 unknownCalls={}
 function mock(kind)
   local o={_kind=kind,_scripts={},_shown=true,_checked=false,_width=0,_scale=1,_minw=0}
@@ -66,6 +66,7 @@ function mock(kind)
       if k=="GetChecked" then return self._checked end
       if k=="SetText" then self._text=... return end
       if k=="GetText" then return self._text end
+      if k=="GetStringWidth" then return 100 end
       if k=="AddLine" or k=="AddDoubleLine" then self._lines=self._lines or {} self._lines[#self._lines+1]=tostring((...)) return end
       if k=="SetOwner" or k=="ClearLines" then self._lines={} return end
       if k=="GetParent" then return self._parent end
@@ -382,6 +383,37 @@ rowBtn._scripts.OnEnter(rowBtn)
 ok(#GameTooltip._lines>5 and GameTooltip._minw>0,"infobulle de ligne + largeur minimale")
 rowBtn._scripts.OnLeave(rowBtn)
 ok(GameTooltip._minw==0,"largeur minimale remise a 0")
+local function hasLine(t) for _,l in ipairs(GameTooltip._lines or {}) do if l:find(t,1,true) then return true end end return false end
+rowBtn._scripts.OnEnter(rowBtn)
+local nShort=#GameTooltip._lines
+ok(hasLine(Lc.TT2_TOTAL) and hasLine(Lc.TT2_HINT_SHIFT),"infobulle courte : total et aide")
+GameTooltip.IsOwned=function(self, o) return o==rowBtn end
+IsShiftKeyDown=function() return true end
+rowBtn._scripts.OnUpdate(rowBtn, 0.2)
+ok(#GameTooltip._lines>nShort and not hasLine(Lc.TT2_HINT_SHIFT),"Maj : details ajoutes ("..nShort.." -> "..#GameTooltip._lines..")")
+IsShiftKeyDown=nil GameTooltip.IsOwned=nil
+rowBtn._scripts.OnLeave(rowBtn)
+-- right-click menu
+rowBtn._scripts.OnClick(rowBtn, "RightButton")
+ok(WritPriceRowMenu and WritPriceRowMenu._shown,"clic droit : menu affiche")
+local menuItems={}
+for _,f in ipairs(frames) do if f._parent==WritPriceRowMenu and f._kind=="Button" and f._shown then menuItems[#menuItems+1]=f end end
+ok(#menuItems>=3,"menu : "..#menuItems.." actions")
+WritPriceRowMenu:Hide()
+-- turn-in place on the map
+local mapID,x,y=ns.TurnInPoint("Craftsman's Writ: Elixir of Wisdom")
+ok(mapID==1417 and math.abs(x-0.487)<1e-6 and math.abs(y-0.558)<1e-6,"lieu de rendu : carte 1417, 48.7/55.8")
+local tt
+TomTom={AddWaypoint=function(self,m,px,py,o) tt={m,px,py,o} return {} end}
+ns.ShowTurnIn("Craftsman's Writ: Elixir of Wisdom")
+ok(tt and tt[1]==1417 and tt[4].title:find("Muggol",1,true),"point TomTom pose")
+TomTom=nil
+local pin
+C_Map={SetUserWaypoint=function(p) pin=p end} UiMapPoint={CreateFromCoordinates=function(m,px,py) return {m=m,x=px,y=py} end}
+ns.ShowTurnIn("Craftsman's Writ: Elixir of Wisdom")
+ok(pin and pin.m==1417,"sans TomTom : repere du jeu")
+C_Map=nil UiMapPoint=nil
+ok(ns.TurnInPoint("Craftsman's Writ: Truc Inconnu")==nil,"writ sans coordonnees : pas de point")
 
 -- broker with a fake LibStub
 local created

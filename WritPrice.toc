@@ -29,6 +29,7 @@ Names.lua
 Craft.lua
 Profs.lua
 Quests.lua
+Map.lua
 Model.lua
 Scan.lua
 FullScan.lua

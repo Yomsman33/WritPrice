@@ -23,7 +23,7 @@ WritPrice scans the auction house for every Craftsman's Writ and the item each o
 
 1. Open the auction house and click the **WritPrice** button above it (or the minimap icon, or type `/writs`).
 2. Pick a rank (and professions), then click **Scan**.
-3. Read the ranking. Click an item column to search for the item on the auction house, anywhere else on the row to search for the writ; right-click to set a quantity.
+3. Read the ranking. Click an item column to search for the item on the auction house, anywhere else on the row to search for the writ. Right-click a row for a menu (quantity, turn-in place on the map with TomTom or the game's pin); hold Shift over a row for details.
 
 ## Commands
 

@@ -609,64 +609,206 @@ end
 ------------------------------------------------------------
 -- Row tooltip
 ------------------------------------------------------------
+-- Row tooltip: short by default (header, costs, turn-in, status), details while Shift is held
+local function CostLine(label, copper, r, g, b)
+  GameTooltip:AddDoubleLine(label, copper and ns.Coins(copper) or "|cff999999-|r", r or 0.85, g or 0.85, b or 0.85, 1, 1, 1)
+end
+
 local function RowTooltip(self)
   local row = self.row
   if not row then return end
+  local details = IsShiftKeyDown and IsShiftKeyDown()
+  local overItem = ItemZone(self) and row.item ~= nil
+  self.tipState = (details and "d" or "") .. (overItem and "i" or "w")
   GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-  TipMinWidth(340)
-  GameTooltip:AddLine(ns.Disp(row.name), 1, 0.82, 0)
-  if row.prof then GameTooltip:AddLine(ns.F("ROW_PROF", ns.ProfName(row.prof)), 0.6, 0.8, 1) end
-  if row.writCount then GameTooltip:AddLine(ns.Plural(row.writCount, "ROW_FOR_SALE"), 0.7, 0.7, 0.7) end
-  if row.qtyEst then
-    GameTooltip:AddLine(L.ROW_QTY_EST, 0.7, 0.7, 0.7)
-  elseif row.qtySrc == "quest" then
-    GameTooltip:AddLine(ns.F("ROW_QTY_QUEST", row.qty), 0.7, 0.7, 0.7)
-  elseif row.qtySrc == "manual" then
-    GameTooltip:AddLine(ns.F("ROW_QTY_MANUAL", row.qty), 0.7, 0.7, 0.7)
-  elseif row.qtyGuide then
-    GameTooltip:AddLine(ns.F("ROW_QTY_GUIDE", row.qty), 0.7, 0.7, 0.7)
-  end
-  if row.unitOld then GameTooltip:AddLine(ns.F("ROW_OLD_PRICE", Ago(row.unitOld)), 0.7, 0.7, 0.7) end
-  if row.pouch then
-    if (row.pouchN or 0) > 0 then
-      GameTooltip:AddLine(ns.F("ROW_POUCH", ns.Coins(row.pouch), row.pouchN), 0.25, 1, 0.25)
-    else
-      GameTooltip:AddLine(ns.F("ROW_POUCH_DEFAULT", ns.Coins(row.pouch)), 0.25, 1, 0.25)
-    end
-    if row.net and ns.db.usePouch ~= false then GameTooltip:AddLine(ns.F("ROW_NET", ns.Coins(row.net)), 0.25, 1, 0.25) end
-  else
-    GameTooltip:AddLine(L.ROW_POUCH_NONE, 0.7, 0.7, 0.7, true)
-  end
-  if row.unitAtr then
-    GameTooltip:AddLine(row.unitAtr >= 0 and ns.F("ROW_ATR_PRICE", row.unitAtr) or L.ROW_ATR_PRICE_NOAGE, 0.56, 0.66, 1)
-  end
-  if row.notScanned then GameTooltip:AddLine(L.ROW_NOT_SCANNED_WHY, 0.7, 0.7, 0.7, true) end
-  if row.done then GameTooltip:AddLine(L.ROW_DONE_TODAY, 1, 0.4, 0.4) end
+  TipMinWidth(300)
+
+  -- header: writ, rank and reputation; profession or recipe status
+  GameTooltip:AddDoubleLine(ns.Disp(row.name),
+    row.rank and ns.F("TT2_RANK", row.rank, row.rep or 0) or "", 1, 0.82, 0, 0.6, 0.6, 0.6)
   if row.recipeLong then
     local r, g, b = HexColor(row.recipeColor)
     GameTooltip:AddLine(row.recipeLong, r, g, b, true)
+  elseif row.prof then
+    GameTooltip:AddLine(ns.ProfName(row.prof), 0.6, 0.8, 1)
   end
-  if row.dest then
-    GameTooltip:AddLine(ns.F("ROW_TURNIN", row.dest), 1, 0.82, 0.5, true)
-    if row.destSrc == "guide" then GameTooltip:AddLine(L.ROW_DEST_GUIDE, 0.6, 0.6, 0.6) end
-  else
-    GameTooltip:AddLine(L.ROW_DEST_UNKNOWN, 0.7, 0.7, 0.7)
-  end
-  if row.ready then
+  if row.done then
+    GameTooltip:AddLine(L.ROW_DONE_TODAY, 1, 0.4, 0.4)
+  elseif row.ready then
     GameTooltip:AddLine(L.ROW_QUEST_READY, 0.25, 1, 0.25)
   elseif row.active then
-    GameTooltip:AddLine(ns.F("ROW_QUEST_ACTIVE", row.have or 0, row.qty or 0), 0.3, 0.76, 1)
+    GameTooltip:AddLine(ns.F("TT2_ACTIVE", row.have or 0, row.qty or 0), 0.3, 0.76, 1)
   end
+
+  -- costs
   GameTooltip:AddLine(" ")
-  GameTooltip:AddLine(L.ROW_CLICK_ITEM, 1, 1, 1)
-  GameTooltip:AddLine(L.ROW_CLICK_WRIT, 1, 1, 1)
-  GameTooltip:AddLine(L.ROW_CLICK_RIGHT, 1, 1, 1)
-  if row.hasRecipe and ns.AddCraftLines then
-    GameTooltip:AddLine(" ")
-    ns.AddCraftLines(GameTooltip, row.item, row.qty)
+  if row.active then
+    GameTooltip:AddDoubleLine(L.TT2_WRIT, L.TT2_OWNED, 0.85, 0.85, 0.85, 0.6, 0.6, 0.6)
+  else
+    local lab = L.TT2_WRIT .. (row.writCount and (" |cff999999" .. ns.F("TT2_FOR_SALE", row.writCount) .. "|r") or "")
+    CostLine(lab, row.writMin)
   end
-  if row.partial then GameTooltip:AddLine(L.ROW_PARTIAL, 0.7, 0.7, 0.7) end
+  if row.item then
+    local n = row.active and (row.remaining or 0) or (row.qty or 1)
+    local best = row.viaCraft and row.craft or row.unit
+    local mark = (row.qtyEst and "?" or "") .. (row.unitOld and " ~" or "") .. (row.unitAtr and " A" or "")
+      .. (row.viaCraft and (" |cff40ff40" .. L.TT2_CRAFTED .. "|r") or "")
+    local lab = ("%s x%d%s"):format(ns.Disp(row.item), n, mark)
+    if best then
+      CostLine(lab, best * n)
+    else
+      GameTooltip:AddDoubleLine(lab, "|cff999999" .. (row.notScanned and L.TT2_NOT_SCANNED or L.TT2_NOT_FOR_SALE) .. "|r",
+        0.85, 0.85, 0.85, 1, 1, 1)
+    end
+  end
+  if row.pouch and row.total and ns.db.usePouch ~= false then
+    GameTooltip:AddDoubleLine((row.pouchN or 0) > 0 and L.TT2_POUCH or L.TT2_POUCH_EST,
+      "-" .. ns.Coins(row.pouch), 0.25, 1, 0.25, 0.25, 1, 0.25)
+  end
+  CostLine(L.TT2_TOTAL, row.net or row.total, 1, 1, 1)
+  if row.perRep then
+    GameTooltip:AddDoubleLine(L.TT2_PER_POINT, ns.Coins(row.perRep), 1, 0.82, 0, 1, 0.82, 0)
+  end
+
+  -- crafting: one line, the reagents with details
+  if row.hasRecipe and ns.AddCraftLines then
+    if details then
+      GameTooltip:AddLine(" ")
+      ns.AddCraftLines(GameTooltip, row.item, row.qty)
+    elseif row.craft then
+      GameTooltip:AddDoubleLine(ns.F("TT2_CRAFT", ns.ProfLabel(row.recipe)), ns.F("TT2_EACH", ns.Coins(row.craft)),
+        0.4, 1, 0.4, 0.4, 1, 0.4)
+    end
+  end
+
+  -- turn-in place
+  if row.dest then
+    GameTooltip:AddLine(" ")
+    GameTooltip:AddLine(ns.F("ROW_TURNIN", row.dest), 1, 0.82, 0.5, true)
+  end
+
+  -- details: where the numbers come from
+  if details then
+    GameTooltip:AddLine(" ")
+    local function note(t) GameTooltip:AddLine(t, 0.7, 0.7, 0.7, true) end
+    if row.qtyEst then note(L.ROW_QTY_EST)
+    elseif row.qtySrc == "quest" then note(ns.F("ROW_QTY_QUEST", row.qty))
+    elseif row.qtySrc == "manual" then note(ns.F("ROW_QTY_MANUAL", row.qty))
+    elseif row.qtyGuide then note(ns.F("ROW_QTY_GUIDE", row.qty)) end
+    if row.unitOld then note(ns.F("ROW_OLD_PRICE", Ago(row.unitOld))) end
+    if row.unitAtr then note(row.unitAtr >= 0 and ns.F("ROW_ATR_PRICE", row.unitAtr) or L.ROW_ATR_PRICE_NOAGE) end
+    if row.pouch then
+      note((row.pouchN or 0) > 0 and ns.F("ROW_POUCH", ns.Coins(row.pouch), row.pouchN)
+        or ns.F("ROW_POUCH_DEFAULT", ns.Coins(row.pouch)))
+    else
+      note(L.ROW_POUCH_NONE)
+    end
+    if row.notScanned then note(L.ROW_NOT_SCANNED_WHY) end
+    if row.partial then note(L.ROW_PARTIAL) end
+    if row.destSrc == "guide" then note(L.ROW_DEST_GUIDE)
+    elseif not row.dest then note(L.ROW_DEST_UNKNOWN) end
+  end
+
+  -- what a click does here
+  GameTooltip:AddLine(" ")
+  local hint = overItem and ns.F("TT2_HINT_ITEM", ns.Disp(row.item)) or L.TT2_HINT_WRIT
+  GameTooltip:AddLine(hint .. "  |cff999999" .. L.TT2_HINT_RIGHT .. (details and "" or ("  " .. L.TT2_HINT_SHIFT)) .. "|r",
+    0.5, 0.8, 1)
   GameTooltip:Show()
+end
+
+-- Redraw the tooltip when the cursor moves between the item and the writ part, or Shift changes
+local function RowTipUpdate(self, elapsed)
+  self.tipT = (self.tipT or 0) + (elapsed or 0)
+  if self.tipT < 0.1 then return end
+  self.tipT = 0
+  if not (self.row and GameTooltip:IsOwned(self)) then return end
+  local state = ((IsShiftKeyDown and IsShiftKeyDown()) and "d" or "") .. ((ItemZone(self) and self.row.item) and "i" or "w")
+  if state ~= self.tipState then ns.Safe(RowTooltip, self) end
+end
+
+------------------------------------------------------------
+-- Row menu (right-click)
+------------------------------------------------------------
+local rowMenu
+local function RowMenu(btn)
+  local row = btn.row
+  if not row then return end
+  if not rowMenu then
+    local m = CreateFrame("Frame", "WritPriceRowMenu", UIParent)
+    m:SetFrameStrata("FULLSCREEN_DIALOG")
+    m:EnableMouse(true)
+    m:SetClampedToScreen(true)
+    local border = m:CreateTexture(nil, "BACKGROUND")
+    border:SetAllPoints()
+    border:SetColorTexture(0.6, 0.5, 0.2, 1)
+    local bg = m:CreateTexture(nil, "BORDER")
+    bg:SetPoint("TOPLEFT", 1, -1)
+    bg:SetPoint("BOTTOMRIGHT", -1, 1)
+    bg:SetColorTexture(0.05, 0.05, 0.08, 0.97)
+    m.title = m:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+    m.title:SetPoint("TOPLEFT", 10, -8)
+    m.title:SetJustifyH("LEFT")
+    m.items = {}
+    local catcher = CreateFrame("Button", nil, UIParent)
+    catcher:SetAllPoints(UIParent)
+    catcher:SetFrameStrata("FULLSCREEN")
+    catcher:RegisterForClicks("AnyUp")
+    catcher:SetScript("OnClick", function() m:Hide() end)
+    catcher:Hide()
+    m:SetScript("OnShow", function() catcher:Show() end)
+    m:SetScript("OnHide", function() catcher:Hide() end)
+    m:Hide()
+    tinsert(UISpecialFrames, "WritPriceRowMenu")
+    rowMenu = m
+  end
+  local m = rowMenu
+  local entries = {
+    { L.MENU_SEARCH_WRIT, function() SearchInAH(row.name) end },
+  }
+  if row.item then
+    entries[#entries + 1] = { ns.F("MENU_SEARCH_ITEM", ns.Disp(row.item)), function() SearchInAH(row.item) end }
+  end
+  entries[#entries + 1] = { L.MENU_QTY, function()
+    local dlg = StaticPopup_Show("WRITPRICE_QTY", ns.Disp(row.name), nil, row.name)
+    if dlg then dlg.data = row.name end
+  end }
+  local canMap = ns.TurnInPoint and ns.TurnInPoint(row.name)
+  entries[#entries + 1] = { canMap and L.MENU_MAP or ("|cff808080" .. L.MENU_MAP .. "|r"), canMap and function()
+    ns.ShowTurnIn(row.name)
+  end or nil }
+  m.title:SetText(ns.Disp(row.name))
+  local W = math.max(220, m.title:GetStringWidth() + 20)
+  for i, e in ipairs(entries) do
+    local b = m.items[i]
+    if not b then
+      b = CreateFrame("Button", nil, m)
+      b:SetHeight(20)
+      b:SetHighlightTexture("Interface\\QuestFrame\\UI-QuestTitleHighlight", "ADD")
+      b.fs = b:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+      b.fs:SetPoint("LEFT", 10, 0)
+      m.items[i] = b
+    end
+    b:ClearAllPoints()
+    b:SetPoint("TOPLEFT", 1, -24 - (i - 1) * 20)
+    b:SetPoint("RIGHT", m, "RIGHT", -1, 0)
+    b.fs:SetText(e[1])
+    W = math.max(W, b.fs:GetStringWidth() + 24)
+    b:SetScript("OnClick", function()
+      m:Hide()
+      if e[2] then ns.Safe(e[2]) end
+    end)
+    b:SetEnabled(e[2] ~= nil)
+    b:Show()
+  end
+  for i = #entries + 1, #m.items do m.items[i]:Hide() end
+  m:SetSize(W, 30 + #entries * 20)
+  m:ClearAllPoints()
+  local x, y = GetCursorPosition()
+  local sc = UIParent:GetEffectiveScale()
+  m:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", x / sc - 4, y / sc + 4)
+  TipHide()
+  m:Show()
 end
 
 ------------------------------------------------------------
@@ -839,8 +981,7 @@ local function Build()
     btn:SetScript("OnClick", function(self, mouse)
       if not self.row then return end
       if mouse == "RightButton" then
-        local dlg = StaticPopup_Show("WRITPRICE_QTY", ns.Disp(self.row.name), nil, self.row.name)
-        if dlg then dlg.data = self.row.name end
+        RowMenu(self)
       elseif ItemZone(self) and self.row.item then
         SearchInAH(self.row.item)
       else
@@ -848,6 +989,7 @@ local function Build()
       end
     end)
     btn:SetScript("OnEnter", function(self) ns.Safe(RowTooltip, self) end)
+    btn:SetScript("OnUpdate", RowTipUpdate)
     btn:SetScript("OnLeave", TipHide)
     rows[i] = btn
   end

@@ -2,7 +2,6 @@
 S = [
 ("COL_pouch", "Pouch", "Bourse"),
 ("ROW_POUCH", "Coin Pouch reward: %s (median of %d samples)", "Bourse de récompense : %s (médiane de %d relevés)"),
-("ROW_NET", "Net cost (minus the pouch): %s", "Coût net (bourse déduite) : %s"),
 ("ROW_POUCH_NONE", "Coin Pouch reward unknown for this rank: turn in a writ and open its pouch, or get data from your guild.", "Bourse inconnue pour ce rang : rends un writ et ouvre sa bourse, ou récupère les relevés de ta guilde."),
 ("TT_POUCH", "Coin Pouch (median of %d):", "Bourse (médiane de %d) :"),
 ("CHAT_POUCH_HEADER", "Coin Pouch rewards (median of own and shared samples):", "Bourses de récompense (médiane de tes relevés et de ceux partagés) :"),
