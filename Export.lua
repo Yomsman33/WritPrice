@@ -11,7 +11,7 @@
 --   R;<item>;<rank>                    rank read from the writ tooltip
 --   P;<rank>;<copper>;<time>;<id>;<item>;<turn-in text>;<zone>   own Coin Pouch sample
 --   I;<English name>;<item ID>         writ, Coin Pouch or requested item ID (English client only)
---   F;<faction ID>                     Azeroth Commerce Authority faction ID (English client only)
+--   F;<faction ID>;<English name>      writ faction ID (English client only)
 --   END;<checksum>                     sum of the bytes of the lines above, modulo 65536, in hex
 local ADDON, ns = ...
 local L = ns.L
@@ -41,7 +41,7 @@ function ns.BuildExport()
   table.sort(items, function(a, b) return a.item < b.item end)
   for _, e in ipairs(items) do
     local w = e.w
-    if w.dest then
+    if w.dest and not ns.IsJunkDest(w.dest) then
       local zone = w.dest:match(ns.GAME.IN_ZONE)
       lines[#lines + 1] = table.concat({ "D", Field(e.item), Field(w.dest), Field(zone) }, ";")
       counts.D = counts.D + 1
@@ -89,10 +89,11 @@ function ns.BuildExport()
       counts.I = counts.I + 1
     end
     if ns.FactionStanding then ns.FactionStanding() end -- learns the faction ID when not known yet
-    local fid = ns.db.factionID
-    if type(fid) == "number" and not ns.FACTION_ID then
-      lines[#lines + 1] = "F;" .. fid
-      counts.I = counts.I + 1
+    for name, fid in pairs(ns.db.factionIDs or {}) do
+      if type(fid) == "number" and ns.IsWritFaction(name) and not (ns.FACTION_IDS and ns.FACTION_IDS[name] == fid) then
+        lines[#lines + 1] = table.concat({ "F", tostring(fid), Field(name) }, ";")
+        counts.I = counts.I + 1
+      end
     end
   end
   local body = table.concat(lines, "\n")
@@ -157,8 +158,11 @@ function ns.ApplyImport(text)
         end
       end
     elseif kind == "F" then
-      local id = tonumber(f[2])
-      if id and id > 0 and not ns.db.factionID then ns.db.factionID = id end
+      local id, name = tonumber(f[2]), f[3] or ns.GAME.FACTION
+      if id and id > 0 and ns.IsWritFaction(name) then
+        ns.db.factionIDs = type(ns.db.factionIDs) == "table" and ns.db.factionIDs or {}
+        if not ns.db.factionIDs[name] then ns.db.factionIDs[name] = id end
+      end
     end
   end
   ns.pouchCache = nil

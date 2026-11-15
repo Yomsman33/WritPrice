@@ -1,0 +1,325 @@
+WPX;1;0.1.1-dev
+R;Advanced Target Dummy;Expert
+R;Arcanite Skeleton Key;Artisan
+R;Azure Silk Hood;Journeyman
+R;Barbaric Gloves;Journeyman
+R;Big Bronze Bomb;Journeyman
+R;Big Bronze Knife;Journeyman
+R;Big Voodoo Mask;Expert
+R;Big Voodoo Robe;Expert
+R;Black Mageweave Vest;Expert
+R;Blue Glittering Axe;Expert
+R;Blue Overalls;Journeyman
+R;Catseye Draught;Expert
+R;Catseye Ultra Goggles;Expert
+R;Cenarion Herb Bag;Artisan
+R;Chimeric Vest;Artisan
+R;Cindercloth Robe;Expert
+R;Colorful Kilt;Journeyman
+R;Comfortable Leather Hat;Expert
+D;Crafted Solid Shot;the location marked on your map. This writ must be in your possession to complete the transaction;your possession to complete the transaction
+Q;Crafted Solid Shot;200;Journeyman
+R;Crafted Solid Shot;Journeyman
+R;Craftsman's Monocle;Expert
+R;Crimson Silk Robe;Expert
+R;Dark Iron Bomb;Expert
+R;Dark Leather Shoulders;Journeyman
+R;Dark Leather Tunic;Journeyman
+R;Darkrune Gauntlets;Artisan
+R;Distilled Firewater;Artisan
+R;Draught of Detect Demon;Artisan
+R;Draught of Water Breathing;Journeyman
+R;Dreamless Sleep Potion;Artisan
+D;Dusky Bracers;the location marked on your map. This writ must be in your possession to complete the transaction;your possession to complete the transaction
+Q;Dusky Bracers;1;Expert
+R;Dusky Bracers;Expert
+R;Earthen Silk Belt;Expert
+R;Ebon Shiv;Artisan
+R;Elixir of Agility;Expert
+R;Elixir of Defense;Journeyman
+R;Elixir of Lesser Agility;Journeyman
+R;Elixir of Ogre's Strength;Journeyman
+R;Elixir of Wisdom;Journeyman
+R;Enchanted Mageweave Pouch;Expert
+R;Explosive Sheep;Journeyman
+R;Felcloth Boots;Artisan
+R;Field Repair Bot 74A;Artisan
+R;Fine Leather Pants;Journeyman
+R;Fire Goggles;Expert
+R;Fire Protection Potion;Expert
+R;Flash Bomb;Expert
+R;Flask of Chromatic Resistance;Artisan
+R;Free Action Potion;Journeyman
+R;Frost Protection Potion;Expert
+R;Frostsaber Boots;Artisan
+R;Ghostweave Vest;Artisan
+R;Gift of Arthas;Artisan
+R;Gnomish Alarm-O-Bot;Artisan
+R;Gnomish Universal Remote;Journeyman
+R;Goblin Jumper Cables XL;Artisan
+R;Goblin Land Mine;Expert
+R;Goblin Rocket Fuel;Expert
+R;Golden Rod;Journeyman
+R;Golden Scale Coif;Expert
+R;Golden Scale Gauntlets;Expert
+R;Gordok Ogre Suit;Artisan
+D;Great Rage Potion;the location marked on your map. This writ must be in your possession to complete the transaction;your possession to complete the transaction
+Q;Great Rage Potion;1;Expert
+R;Great Rage Potion;Expert
+R;Greater Adept's Robe;Journeyman
+R;Greater Fire Protection Potion;Artisan
+R;Green Iron Boots;Journeyman
+R;Green Iron Gauntlets;Journeyman
+R;Green Lens;Artisan
+R;Guardian Cloak;Expert
+R;Gyromatic Micro-Adjuster;Expert
+R;Heavy Bronze Mace;Journeyman
+R;Heavy Leather Ball;Journeyman
+R;Heavy Mithril Axe;Expert
+D;Heavy Quiver;the location marked on your map. This writ must be in your possession to complete the transaction;your possession to complete the transaction
+Q;Heavy Quiver;1;Journeyman
+R;Heavy Quiver;Journeyman
+R;Heavy Scorpid Helm;Artisan
+R;Herbalist's Gloves;Journeyman
+R;Huge Thorium Battleaxe;Artisan
+R;Imperial Plate Chest;Artisan
+R;Inlaid Mithril Cylinder;Expert
+R;Iridescent Hammer;Journeyman
+R;Lesser Invisibility Potion;Expert
+R;Lesser Mana Potion;Journeyman
+R;Lesser Stoneshield Potion;Expert
+R;Lesser Troll's Blood Elixir;Journeyman
+R;Lesser Wizard's Robe;Journeyman
+R;Lifelike Mechanical Toad;Artisan
+R;Limited Invulnerability Potion;Artisan
+R;Mageweave Bag;Expert
+R;Major Rejuvenation Potion;Artisan
+R;Mana Potion;Expert
+R;Masterwork Target Dummy;Artisan
+R;Mechanical Dragonling;Expert
+D;Mechanical Repair Kit;the location marked on your map. This writ must be in your possession to complete the transaction;your possession to complete the transaction
+Q;Mechanical Repair Kit;1;Expert
+R;Mechanical Repair Kit;Expert
+R;Minor Recombobulator;Journeyman
+R;Mithril Frag Bomb;Expert
+R;Mithril Spurs;Artisan
+R;Moonsight Rifle;Journeyman
+R;Moonsteel Broadsword;Expert
+R;Nature Protection Potion;Expert
+R;Nightscape Shoulders;Expert
+R;Orange Martial Shirt;Expert
+R;Orcish War Leggings;Artisan
+R;Ornate Mithril Shoulders;Expert
+R;Ornate Spyglass;Journeyman
+R;Pearl-Handled Dagger;Journeyman
+R;Phoenix Pants;Journeyman
+R;Pilferer's Gloves;Journeyman
+R;Potion of Demonslaying;Artisan
+D;Practice Lock;the location marked on your map. This writ must be in your possession to complete the transaction;your possession to complete the transaction
+Q;Practice Lock;1;Journeyman
+R;Practice Lock;Journeyman
+R;Quickdraw Quiver;Expert
+R;Radiant Belt;Artisan
+R;Radiant Circlet;Artisan
+R;Red Mageweave Pants;Expert
+R;Red Whelp Gloves;Journeyman
+R;Red Woolen Boots;Journeyman
+D;Rough Bronze Leggings;the location marked on your map. This writ must be in your possession to complete the transaction;your possession to complete the transaction
+Q;Rough Bronze Leggings;1;Journeyman
+R;Rough Bronze Leggings;Journeyman
+R;Runecloth Bag;Artisan
+R;Runecloth Boots;Artisan
+R;Runic Leather Bracers;Artisan
+R;Runic Leather Headband;Artisan
+D;Shadow Goggles;the location marked on your map. This writ must be in your possession to complete the transaction;your possession to complete the transaction
+Q;Shadow Goggles;1;Journeyman
+R;Shadow Goggles;Journeyman
+R;Shadow Oil;Expert
+R;Shadow Protection Potion;Journeyman
+R;Shadoweave Gloves;Expert
+R;Shadoweave Mask;Artisan
+R;Shadoweave Robe;Expert
+R;Silver Skeleton Key;Journeyman
+R;Small Silk Pack;Journeyman
+R;Sniper Scope;Artisan
+R;Solid Sharpening Stone;Expert
+R;Soul Pouch;Artisan
+R;Spider Silk Slippers;Journeyman
+R;Star Belt;Expert
+R;Steel Plate Helm;Expert
+R;Steel Weapon Chain;Expert
+R;Swift Boots;Expert
+D;Thick Leather Ammo Pouch;the location marked on your map. This writ must be in your possession to complete the transaction;your possession to complete the transaction
+Q;Thick Leather Ammo Pouch;1;Expert
+R;Thick Leather Ammo Pouch;Expert
+R;Tranquil Mechanical Yeti;Artisan
+R;Truesilver Rod;Expert
+R;Truesilver Transformer;Artisan
+R;Turtle Scale Breastplate;Expert
+R;Tuxedo Jacket;Artisan
+D;Unstable Trigger;the location marked on your map. This writ must be in your possession to complete the transaction;your possession to complete the transaction
+Q;Unstable Trigger;1;Expert
+R;Unstable Trigger;Expert
+R;Volcanic Breastplate;Artisan
+R;White Bandit Mask;Expert
+R;Wicked Leather Bracers;Artisan
+R;Wicked Leather Pants;Artisan
+R;Wicked Mithril Blade;Expert
+R;Wild Leather Helmet;Expert
+R;Wild Leather Shoulders;Expert
+R;Wildvine Potion;Expert
+R;Wizardweave Turban;Artisan
+I;Catseye Draught;10592
+I;Craftsman's Writ: Advanced Target Dummy;264081
+I;Craftsman's Writ: Arcanite Skeleton Key;264132
+I;Craftsman's Writ: Azure Silk Hood;264049
+I;Craftsman's Writ: Barbaric Gloves;264045
+I;Craftsman's Writ: Big Bronze Bomb;264036
+I;Craftsman's Writ: Big Bronze Knife;264027
+I;Craftsman's Writ: Big Voodoo Mask;264100
+I;Craftsman's Writ: Big Voodoo Robe;264101
+I;Craftsman's Writ: Black Mageweave Vest;264110
+I;Craftsman's Writ: Blue Glittering Axe;264072
+I;Craftsman's Writ: Blue Overalls;264048
+I;Craftsman's Writ: Catseye Draught;264060
+I;Craftsman's Writ: Catseye Ultra Goggles;264084
+I;Craftsman's Writ: Cenarion Herb Bag;264157
+I;Craftsman's Writ: Chimeric Vest;264148
+I;Craftsman's Writ: Cindercloth Robe;264114
+I;Craftsman's Writ: Colorful Kilt;264053
+I;Craftsman's Writ: Comfortable Leather Hat;264092
+I;Craftsman's Writ: Crafted Solid Shot;264037
+I;Craftsman's Writ: Craftsman's Monocle;264082
+I;Craftsman's Writ: Crimson Silk Robe;264106
+I;Craftsman's Writ: Dark Iron Bomb;264091
+I;Craftsman's Writ: Dark Leather Shoulders;264044
+I;Craftsman's Writ: Dark Leather Tunic;264041
+I;Craftsman's Writ: Darkrune Gauntlets;264130
+I;Craftsman's Writ: Distilled Firewater;264124
+I;Craftsman's Writ: Draught of Detect Demon;264119
+I;Craftsman's Writ: Draught of Water Breathing;264019
+I;Craftsman's Writ: Dreamless Sleep Potion;264117
+I;Craftsman's Writ: Dusky Bracers;264094
+I;Craftsman's Writ: Earthen Silk Belt;264115
+I;Craftsman's Writ: Ebon Shiv;264133
+I;Craftsman's Writ: Elixir of Agility;264066
+I;Craftsman's Writ: Elixir of Defense;264018
+I;Craftsman's Writ: Elixir of Lesser Agility;264016
+I;Craftsman's Writ: Elixir of Ogre's Strength;264011
+I;Craftsman's Writ: Elixir of Wisdom;264012
+I;Craftsman's Writ: Enchanted Mageweave Pouch;264108
+I;Craftsman's Writ: Explosive Sheep;264030
+I;Craftsman's Writ: Felcloth Boots;264156
+I;Craftsman's Writ: Field Repair Bot 74A;264139
+I;Craftsman's Writ: Fine Leather Pants;264039
+I;Craftsman's Writ: Fire Goggles;264087
+I;Craftsman's Writ: Fire Protection Potion;264063
+I;Craftsman's Writ: Flash Bomb;264086
+I;Craftsman's Writ: Flask of Chromatic Resistance;264121
+I;Craftsman's Writ: Free Action Potion;264015
+I;Craftsman's Writ: Frost Protection Potion;264056
+I;Craftsman's Writ: Frostsaber Boots;264151
+I;Craftsman's Writ: Ghostweave Vest;264159
+I;Craftsman's Writ: Gift of Arthas;264120
+I;Craftsman's Writ: Gnomish Alarm-O-Bot;264137
+I;Craftsman's Writ: Gnomish Universal Remote;264035
+I;Craftsman's Writ: Goblin Jumper Cables XL;264138
+I;Craftsman's Writ: Goblin Land Mine;264083
+I;Craftsman's Writ: Goblin Rocket Fuel;264065
+I;Craftsman's Writ: Golden Rod;264021
+I;Craftsman's Writ: Golden Scale Coif;264074
+I;Craftsman's Writ: Golden Scale Gauntlets;264078
+I;Craftsman's Writ: Gordok Ogre Suit;264144
+I;Craftsman's Writ: Great Rage Potion;264061
+I;Craftsman's Writ: Greater Adept's Robe;264054
+I;Craftsman's Writ: Greater Fire Protection Potion;264118
+I;Craftsman's Writ: Green Iron Boots;264028
+I;Craftsman's Writ: Green Iron Gauntlets;264026
+I;Craftsman's Writ: Green Lens;264135
+I;Craftsman's Writ: Guardian Cloak;264093
+I;Craftsman's Writ: Gyromatic Micro-Adjuster;264089
+I;Craftsman's Writ: Heavy Bronze Mace;264024
+I;Craftsman's Writ: Heavy Leather Ball;264038
+I;Craftsman's Writ: Heavy Mithril Axe;264079
+I;Craftsman's Writ: Heavy Quiver;264043
+I;Craftsman's Writ: Heavy Scorpid Helm;264149
+I;Craftsman's Writ: Herbalist's Gloves;264040
+I;Craftsman's Writ: Huge Thorium Battleaxe;264131
+I;Craftsman's Writ: Imperial Plate Chest;264129
+I;Craftsman's Writ: Inlaid Mithril Cylinder;264069
+I;Craftsman's Writ: Iridescent Hammer;264022
+I;Craftsman's Writ: Lesser Invisibility Potion;264057
+I;Craftsman's Writ: Lesser Mana Potion;264013
+I;Craftsman's Writ: Lesser Stoneshield Potion;264058
+I;Craftsman's Writ: Lesser Troll's Blood Elixir;264017
+I;Craftsman's Writ: Lesser Wizard's Robe;264047
+I;Craftsman's Writ: Lifelike Mechanical Toad;264136
+I;Craftsman's Writ: Limited Invulnerability Potion;264122
+I;Craftsman's Writ: Mageweave Bag;264104
+I;Craftsman's Writ: Major Rejuvenation Potion;264123
+I;Craftsman's Writ: Mana Potion;264062
+I;Craftsman's Writ: Masterwork Target Dummy;264134
+I;Craftsman's Writ: Mechanical Dragonling;264080
+I;Craftsman's Writ: Mechanical Repair Kit;264090
+I;Craftsman's Writ: Minor Recombobulator;264032
+I;Craftsman's Writ: Mithril Frag Bomb;264088
+I;Craftsman's Writ: Mithril Spurs;264128
+I;Craftsman's Writ: Moonsight Rifle;264031
+I;Craftsman's Writ: Moonsteel Broadsword;264073
+I;Craftsman's Writ: Nature Protection Potion;264059
+I;Craftsman's Writ: Nightscape Shoulders;264099
+I;Craftsman's Writ: Orange Martial Shirt;264112
+I;Craftsman's Writ: Orcish War Leggings;264127
+I;Craftsman's Writ: Ornate Mithril Shoulders;264071
+I;Craftsman's Writ: Ornate Spyglass;264029
+I;Craftsman's Writ: Pearl-Handled Dagger;264020
+I;Craftsman's Writ: Phoenix Pants;264051
+I;Craftsman's Writ: Pilferer's Gloves;264042
+I;Craftsman's Writ: Potion of Demonslaying;264116
+I;Craftsman's Writ: Practice Lock;264033
+I;Craftsman's Writ: Quickdraw Quiver;264097
+I;Craftsman's Writ: Radiant Belt;264126
+I;Craftsman's Writ: Radiant Circlet;264125
+I;Craftsman's Writ: Red Mageweave Pants;264111
+I;Craftsman's Writ: Red Whelp Gloves;264046
+I;Craftsman's Writ: Red Woolen Boots;264052
+I;Craftsman's Writ: Rough Bronze Leggings;264025
+I;Craftsman's Writ: Runecloth Bag;264153
+I;Craftsman's Writ: Runecloth Boots;264154
+I;Craftsman's Writ: Runic Leather Bracers;264150
+I;Craftsman's Writ: Runic Leather Headband;264146
+I;Craftsman's Writ: Shadow Goggles;264034
+I;Craftsman's Writ: Shadow Oil;264064
+I;Craftsman's Writ: Shadow Protection Potion;264014
+I;Craftsman's Writ: Shadoweave Gloves;264105
+I;Craftsman's Writ: Shadoweave Robe;264107
+I;Craftsman's Writ: Silver Skeleton Key;264023
+I;Craftsman's Writ: Small Silk Pack;264050
+I;Craftsman's Writ: Sniper Scope;264141
+I;Craftsman's Writ: Solid Sharpening Stone;264075
+I;Craftsman's Writ: Soul Pouch;264160
+I;Craftsman's Writ: Spider Silk Slippers;264055
+I;Craftsman's Writ: Star Belt;264109
+I;Craftsman's Writ: Steel Plate Helm;264068
+I;Craftsman's Writ: Steel Weapon Chain;264070
+I;Craftsman's Writ: Swift Boots;264098
+I;Craftsman's Writ: Thick Leather Ammo Pouch;264103
+I;Craftsman's Writ: Tranquil Mechanical Yeti;264142
+I;Craftsman's Writ: Truesilver Rod;264077
+I;Craftsman's Writ: Truesilver Transformer;264140
+I;Craftsman's Writ: Turtle Scale Breastplate;264102
+I;Craftsman's Writ: Tuxedo Jacket;264155
+I;Craftsman's Writ: Unstable Trigger;264085
+I;Craftsman's Writ: Volcanic Breastplate;264145
+I;Craftsman's Writ: White Bandit Mask;264113
+I;Craftsman's Writ: Wicked Leather Bracers;264147
+I;Craftsman's Writ: Wicked Leather Pants;264143
+I;Craftsman's Writ: Wicked Mithril Blade;264076
+I;Craftsman's Writ: Wild Leather Helmet;264095
+I;Craftsman's Writ: Wild Leather Shoulders;264096
+I;Craftsman's Writ: Wizardweave Turban;264152
+I;Draught of Detect Demon;9233
+I;Draught of Water Breathing;5996
+I;Lesser Troll's Blood Elixir;3388
+I;Ornate Mithril Shoulders;7928
+END;0200

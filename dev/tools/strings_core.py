@@ -57,4 +57,5 @@ S = [
 ("HELP_9", "/writs pouch, /writs export, /writs import, /writs about - pouch values, share data, credits", "/writs pouch, /writs export, /writs import, /writs about - bourses, partage des données, crédits"),
 ("HELP_DEBUG", "/writs debug api | quests | dests | on | off", "/writs debug api | quests | dests | on | off"),
 ("DEBUG_NAMES", "Game language: %s, %d names translated, %d waiting, writ prefix: %s", "Langue du jeu : %s, %d noms traduits, %d en attente, préfixe des writs : %s"),
+("DEBUG_FACTION", "Writ faction: standing %s, IDs %s", "Faction des writs : niveau %s, identifiants %s"),
 ]

@@ -60,6 +60,7 @@ ns.LOCALES.frFR = {
   HELP_9 = "/writs pouch, /writs export, /writs import, /writs about - bourses, partage des données, crédits",
   HELP_DEBUG = "/writs debug api | quests | dests | on | off",
   DEBUG_NAMES = "Langue du jeu : %s, %d noms traduits, %d en attente, préfixe des writs : %s",
+  DEBUG_FACTION = "Faction des writs : niveau %s, identifiants %s",
   PROF_Cooking = "Cuisine",
   ["PROF_First Aid"] = "Secourisme",
   PROF_Enchanting = "Enchantement",

@@ -227,9 +227,16 @@ function ns.IsPouch(id, name)
   return name == ns.GAME.POUCH
 end
 
--- Azeroth Commerce Authority faction ID (built-in, or learned on an English client)
-function ns.FactionID()
-  return ns.FACTION_ID or (ns.db and ns.db.factionID)
+-- Writ factions (English names) and their IDs (built-in, or learned on an English client)
+function ns.IsWritFaction(name)
+  return name == ns.GAME.FACTION or name == ns.GAME.FACTION_HORDE
+end
+
+function ns.FactionIDKnown(id)
+  if type(id) ~= "number" then return false end
+  for _, fid in pairs(ns.FACTION_IDS or {}) do if fid == id then return true end end
+  for _, fid in pairs(ns.db and ns.db.factionIDs or {}) do if fid == id then return true end end
+  return false
 end
 
 -- Translated names wanted on a non-English client: requested items, their reagents, known writ IDs

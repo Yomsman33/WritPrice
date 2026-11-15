@@ -60,6 +60,7 @@ ns.LOCALES.enUS = {
   HELP_9 = "/writs pouch, /writs export, /writs import, /writs about - pouch values, share data, credits",
   HELP_DEBUG = "/writs debug api | quests | dests | on | off",
   DEBUG_NAMES = "Game language: %s, %d names translated, %d waiting, writ prefix: %s",
+  DEBUG_FACTION = "Writ faction: standing %s, IDs %s",
   PROF_Cooking = "Cooking",
   ["PROF_First Aid"] = "First Aid",
   PROF_Enchanting = "Enchanting",

@@ -604,6 +604,8 @@ local origLocale=GetLocale()
 local origGetLocale=GetLocale
 GetLocale=function() return "frFR" end
 ns.ResetNames() ns.db.locNames=nil
+ns.db.itemIDs["Craftsman's Writ: Mana Potion"]=nil -- writ IDs not known yet: built-in ones set aside
+local savedExtra=ns.EXTRA_IDS ns.EXTRA_IDS={}
 local MP=ns.ITEM_IDS["Mana Potion"]
 local HL=ns.ITEM_IDS["Heavy Leather"]
 ok(MP==3827 and HL~=nil and ns.WRIT_LIST["Mana Potion"]~=nil,"donnees de test : Mana Potion 3827")
@@ -701,28 +703,35 @@ GetTradeSkillItemLink=nil
 ns.EXTRA_IDS["Coin Pouch"]=999002
 ok(ns.IsPouch(999002,"Bourse de pièces") and not ns.IsPouch(5,"Truc"),"bourse reconnue par son identifiant")
 ns.EXTRA_IDS["Coin Pouch"]=nil
-ns.FACTION_ID=1234
+ns.FACTION_IDS={["Azeroth Commerce Authority"]=1234}
 GetNumFactions=function() return 1 end
 GetFactionInfo=function() return "Autorité commerciale d'Azeroth", "", 5, 3000, 9000, 4200, nil,nil,nil,nil,nil,nil,nil,1234 end
 ok(ns.FactionStanding()~=nil,"faction reconnue par son identifiant")
-ns.FACTION_ID=nil
+ns.FACTION_IDS={}
 ok(ns.FactionStanding()==nil,"faction inconnue sans identifiant (client francais)")
+GetLocale=function() return "enUS" end
+GetFactionInfo=function() return "Durotar Supply and Logistics", "", 4, 0, 3000, 1200, nil,nil,nil,nil,nil,nil,nil,5678 end
+ns.db.factionIDs=nil
+ok(ns.FactionStanding()~=nil and ns.db.factionIDs["Durotar Supply and Logistics"]==5678,"faction de la Horde reconnue, identifiant appris")
+ns.db.factionIDs=nil
+GetLocale=function() return "frFR" end
+GetFactionInfo=function() return "Autorité commerciale d'Azeroth", "", 5, 3000, 9000, 4200, nil,nil,nil,nil,nil,nil,nil,1234 end
 -- export: no IDs from a French client
 local tFr=ns.BuildExport()
 ok(not tFr:find("\nI;") and not tFr:find("\nF;"),"export francais : pas d'identifiants")
 -- English client: IDs exported, then imported by a French client
 GetLocale=function() return "enUS" end ns.ResetNames()
 GetFactionInfo=function() return "Azeroth Commerce Authority", "", 5, 3000, 9000, 4200, nil,nil,nil,nil,nil,nil,nil,1234 end
-ns.db.factionID=nil
+ns.db.factionIDs=nil
 local tEn=ns.BuildExport()
-ok(tEn:find("\nI;Craftsman's Writ: Mana Potion;50001",1,true) and tEn:find("\nF;1234",1,true),"export anglais : identifiants du writ et de la faction")
+ok(tEn:find("\nI;Craftsman's Writ: Mana Potion;50001",1,true) and tEn:find("\nF;1234;Azeroth Commerce Authority",1,true),"export anglais : identifiants du writ et de la faction")
 GetLocale=function() return "frFR" end ns.ResetNames()
-local savedIDs=ns.db.itemIDs ns.db.itemIDs={} ns.db.factionID=nil
+local savedIDs=ns.db.itemIDs ns.db.itemIDs={} ns.db.factionIDs=nil
 local r=ns.ApplyImport(tEn)
-ok(r and ns.db.itemIDs["Craftsman's Writ: Mana Potion"]==50001 and ns.db.factionID==1234,"import des identifiants (client francais)")
+ok(r and ns.db.itemIDs["Craftsman's Writ: Mana Potion"]==50001 and ns.db.factionIDs["Azeroth Commerce Authority"]==1234,"import des identifiants (client francais)")
 ns.ResetNames() ns.PreloadNames()
 ok(ns.WritSearchText()=="Commande d'artisan","prefixe connu des l'import (identifiant du writ)")
-ns.db.itemIDs=savedIDs ns.db.factionID=nil
+ns.db.itemIDs=savedIDs ns.db.factionIDs=nil
 ns.ResetNames() ns.db.locNames=nil
 local saved3=ns.db.itemIDs
 ns.db.itemIDs={["Craftsman's Writ: Mana Potion"]=60001, ["Craftsman's Writ: Elixir of Wisdom"]=60002}
@@ -731,11 +740,25 @@ ok(ns.WritSearchText()=="Bon de commande","writs d'une autre forme : texte de re
 ok(ns.CanonName("Bon de commande (Potion de mana)",60001)=="Craftsman's Writ: Mana Potion","writ d'une autre forme reconnu par son identifiant")
 ns.db.itemIDs=saved3
 -- back to the original client
-GetLocale=origGetLocale ns.ResetNames() ns.GetItemInfo=origGII2
+GetLocale=origGetLocale ns.EXTRA_IDS=savedExtra ns.ResetNames() ns.GetItemInfo=origGII2
 C_AuctionHouse=nil AuctionHouseFrame=nil
 GetNumFactions=nil GetFactionInfo=nil GetNumTradeSkills=nil GetTradeSkillLine=nil GetTradeSkillInfo=nil
 ns.db.scan[ns.RealmKey()]=sc
 ns.db.locNames=nil
+end
+
+-- ===== 0.1.0 learned "the location marked on your map" as a turn-in place: cleaned =====
+do
+local w=ns.WritInfo("Craftsman's Writ: Mana Potion")
+w.dest="the location marked on your map. This writ must be in your possession to complete the transaction"
+local _,_,src=ns.WritDestination("Craftsman's Writ: Mana Potion")
+ok(w.dest==nil and src~="quest","destination parasite nettoyee")
+ok(not ns.BuildExport():find("location marked",1,true),"export sans destination parasite")
+Q={{questID=921, title="Deliver 2 Mana Potion", obj={{text="Mana Potion: 0/2", type="item", numRequired=2, numFulfilled=0}}}}
+GetQuestLogQuestText=function() return "desc", "Deliver the potions to the location marked on your map. This writ must be in your possession to complete the transaction." end
+ns.ScanQuestLog()
+ok(ns.WritInfo("Craftsman's Writ: Mana Potion").dest==nil,"texte de quete 'location marked' non retenu")
+Q={} ns.ScanQuestLog()
 end
 
 -- ===== options page =====

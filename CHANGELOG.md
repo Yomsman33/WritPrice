@@ -4,7 +4,10 @@
 
 - Game clients in other languages than English (beta): items and writs are matched by item ID and shown in the game's language, the auction house is searched with the translated names, writ names are learned from a full scan, and the quest log, writ tooltips and known recipes are read in the game's language.
 - `/writs export` on an English client now includes writ, Coin Pouch and faction IDs (merged into the next release for other languages); `/writs import` accepts them.
-- `/writs debug api` shows the game language and how many names are translated.
+- `/writs debug api` shows the game language, how many names are translated and the writ faction found.
+- Built-in IDs of 148 writs (from a player export), so other game languages find them without a full scan first.
+- Horde: Durotar Supply and Logistics is recognized like the Azeroth Commerce Authority (standing, reputation goal).
+- Fixed: writ quests only say "the location marked on your map"; 0.1.0 took that for a turn-in place (shown, exported and shared). It is now ignored and cleaned up.
 - Documentation: the README wrongly said WoW Forever is English-only.
 
 ## 0.1.0 - 2026-11-14

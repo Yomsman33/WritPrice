@@ -69,6 +69,8 @@ function ns.AddPouchSample(rank, copper, t, uid, src, info)
   info = info or {}
   local sample = { v = math.floor(copper), t = t, src = src, id = uid,
     item = CleanText(info.item, 60), dest = CleanText(info.dest, 90), zone = CleanText(info.zone, 40) }
+  if ns.IsJunkDest and ns.IsJunkDest(sample.dest) then sample.dest, sample.zone = nil, nil end
+  if ns.IsJunkDest and ns.IsJunkDest(sample.zone) then sample.zone = nil end
   list[#list + 1] = sample
   -- a turn-in place reported by another player helps when we never accepted that writ ourselves
   if src ~= "me" and sample.item and sample.dest then

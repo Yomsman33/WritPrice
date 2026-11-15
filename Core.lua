@@ -15,6 +15,7 @@ ns.GAME = {
   WRIT_PREFIX = "Craftsman's Writ",
   POUCH = "Coin Pouch",
   FACTION = "Azeroth Commerce Authority",
+  FACTION_HORDE = "Durotar Supply and Logistics",          -- the Horde's writ faction
   DELIVER_TITLE = "^Deliver%s+(%d+)%s+(.+)$",            -- quest title "Deliver N <item>"
   DELIVER_TO = "[Dd]eliver.-%sto%s(.-)%.?%s*$",           -- objective text "... to <NPC> at <place> in <zone>."
   TO = "%sto%s(.-)%.?%s*$",
@@ -335,6 +336,12 @@ function ns.PrintAPI()
   if ns.NamesDiag then
     local loc, nLoc, nPend, head = ns.NamesDiag()
     ns.Print(ns.F("DEBUG_NAMES", loc, nLoc, nPend, head or "?"))
+  end
+  if ns.FactionStanding then
+    local label = ns.FactionStanding()
+    local ids = {}
+    for name, id in pairs(ns.db.factionIDs or {}) do ids[#ids + 1] = name .. "=" .. id end
+    ns.Print(ns.F("DEBUG_FACTION", label or "-", #ids > 0 and table.concat(ids, ", ") or "-"))
   end
   local list = {
     "QueryAuctionItems", "GetAuctionItemInfo", "CanSendAuctionQuery", "GetAuctionItemLink",

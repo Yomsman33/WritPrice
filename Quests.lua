@@ -67,13 +67,22 @@ local function QuestObjectiveText(questID, logIndex)
   return nil
 end
 
+-- Writ quests only say "deliver ... to the location marked on your map": that is not a turn-in place.
+-- 0.1.0 learned it anyway; such texts are ignored and cleaned.
+function ns.IsJunkDest(text)
+  if type(text) ~= "string" then return false end
+  local t = text:lower()
+  return t:find("location marked", 1, true) ~= nil or t:find("your possession", 1, true) ~= nil
+    or t:find("your map", 1, true) ~= nil
+end
+
 -- "... to Ziz Fizziks at Windshear Crag in Stonetalon Mountains." -> "Ziz Fizziks at Windshear Crag in Stonetalon Mountains"
 local function ParseDestination(text)
   -- English quest text only: another client falls back to the built-in list
   if not text or not ns.EnglishClient() then return nil end
   text = text:gsub("%s+", " ")
   local dest = text:match(ns.GAME.DELIVER_TO) or text:match(ns.GAME.TO)
-  if dest and #dest > 2 and #dest < 120 then return dest end
+  if dest and #dest > 2 and #dest < 120 and not ns.IsJunkDest(dest) then return dest end
   return nil
 end
 
@@ -83,12 +92,17 @@ function ns.WritDestination(name)
   local w = ns.db and ns.db.writs[name]
   local item = (w and w.item) or ns.ItemFromWrit(name)
   local d = item and ns.WRIT_DEST and ns.WRIT_DEST[item]
+  if w and ns.IsJunkDest(w.dest) then w.dest = nil end
   if w and w.dest then
     local zone = w.dest:match(ns.GAME.IN_ZONE) or (d and d.zone)
     return w.dest, zone, "quest"
   end
   -- turn-in place reported by another WritPrice user (Coin Pouch sharing)
   local shared = item and ns.db and ns.db.pouch and ns.db.pouch.sharedDest and ns.db.pouch.sharedDest[item]
+  if shared and ns.IsJunkDest(shared.dest) then
+    ns.db.pouch.sharedDest[item] = nil
+    shared = nil
+  end
   if shared and shared.dest then
     return shared.dest .. " |cff999999" .. L.DEST_SHARED .. "|r", shared.zone, "shared"
   end
@@ -242,13 +256,15 @@ end
 
 -- Current standing with the Azeroth Commerce Authority (nil when not found)
 -- Returns: standing label, value within the standing, standing size
+-- Azeroth Commerce Authority (Alliance) or Durotar Supply and Logistics (Horde).
 -- Found by faction ID (any client language) or by its English name; an English client learns the ID.
-local FACTION = ns.GAME.FACTION
 local function IsACA(name, id)
-  local fid = ns.FactionID and ns.FactionID()
-  if fid and id == fid then return true end
-  if name == FACTION then
-    if id and ns.db and not ns.db.factionID then ns.db.factionID = id end
+  if ns.FactionIDKnown(id) then return true end
+  if ns.IsWritFaction(name) then
+    if type(id) == "number" and ns.db then
+      ns.db.factionIDs = type(ns.db.factionIDs) == "table" and ns.db.factionIDs or {}
+      ns.db.factionIDs[name] = id
+    end
     return true
   end
   return false

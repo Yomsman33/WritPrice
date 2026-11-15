@@ -39,6 +39,15 @@ def lua_str(s):
     return '"' + s.replace("\\", "\\\\").replace('"', '\\"') + '"'
 
 
+FACTIONS = {"Azeroth Commerce Authority", "Durotar Supply and Logistics"}
+
+
+def junk_dest(text):
+    """Writ quests say "the location marked on your map": not a turn-in place (0.1.0 exported it)."""
+    t = (text or "").lower()
+    return "location marked" in t or "your possession" in t or "your map" in t
+
+
 def unlua(s):
     return (s or "").replace('\\"', '"').replace("\\\\", "\\")
 
@@ -57,13 +66,13 @@ def main():
     blocks, bad = read_exports(folder)
     dests, qtys, ranks = defaultdict(Counter), defaultdict(Counter), defaultdict(Counter)
     pouch, seen_ids = defaultdict(list), set()
-    item_ids, faction_ids = defaultdict(Counter), Counter()
+    item_ids, faction_ids = defaultdict(Counter), defaultdict(Counter)
     for _, body in blocks:
         per_export = set()
         for line in body.split("\n"):
             f = line.split(";")
             k = f[0]
-            if k == "D" and len(f) >= 4 and f[1] and f[2]:
+            if k == "D" and len(f) >= 4 and f[1] and f[2] and not junk_dest(f[2]):
                 key = (f[1], f[2], f[3])
                 if key not in per_export:  # one vote per export
                     per_export.add(key)
@@ -79,9 +88,10 @@ def main():
                     per_export.add(("I", f[1], f[2]))
                     item_ids[f[1]][int(f[2])] += 1
             elif k == "F" and len(f) >= 2 and f[1].isdigit() and int(f[1]) > 0:
-                if ("F", f[1]) not in per_export:
-                    per_export.add(("F", f[1]))
-                    faction_ids[int(f[1])] += 1
+                fname = f[2] if len(f) >= 3 and f[2] else "Azeroth Commerce Authority"
+                if fname in FACTIONS and ("F", f[1], fname) not in per_export:
+                    per_export.add(("F", f[1], fname))
+                    faction_ids[fname][int(f[1])] += 1
             elif k == "P" and len(f) >= 5 and f[1] in RANKS and f[2].isdigit():
                 if f[4] not in seen_ids and 1 <= int(f[2]) <= 200000:
                     seen_ids.add(f[4])
@@ -189,8 +199,9 @@ def main():
     ids_path = os.path.join(ROOT, "Ids.lua")
     ids_src = open(ids_path, encoding="utf-8").read()
     extra = {unlua(m.group(1)): int(m.group(2)) for m in re.finditer(r'\["(.+?)"\] = (\d+),', ids_src)}
-    m = re.search(r"ns\.FACTION_ID = (\d+)", ids_src)
-    faction = int(m.group(1)) if m else None
+    fblock = ids_src[ids_src.index("ns.FACTION_IDS = {"):]
+    factions = {unlua(m.group(1)): int(m.group(2)) for m in re.finditer(r'\["(.+?)"\] = (\d+),', fblock)}
+    extra = {k: v for k, v in extra.items() if k not in factions}
     ichanges = []
     for name, c in sorted(item_ids.items()):
         item = name[len("Craftsman's Writ: "):] if name.startswith("Craftsman's Writ: ") else None
@@ -203,26 +214,30 @@ def main():
         if extra.get(name) != iid:
             ichanges.append(f"- {name}: {extra.get(name)} -> {iid} ({votes} vote(s))")
             extra[name] = iid
-    if faction_ids:
-        fid, votes = faction_ids.most_common(1)[0]
-        if fid != faction:
-            ichanges.append(f"- faction ID: {faction} -> {fid} ({votes} vote(s), all: {dict(faction_ids)})")
-            faction = fid
+    for fname, c in sorted(faction_ids.items()):
+        fid, votes = c.most_common(1)[0]
+        if factions.get(fname) != fid:
+            ichanges.append(f"- faction {fname}: {factions.get(fname)} -> {fid} ({votes} vote(s), all: {dict(c)})")
+            factions[fname] = fid
     report += ["## Ids.lua", ""] + (ichanges or ["- no change"]) + [""]
     ihead = ids_src[:ids_src.index("ns.EXTRA_IDS = {")]
     iout = [ihead.rstrip("\n"), "", "ns.EXTRA_IDS = {"]
     for name in sorted(extra):
         iout.append(f"  [{lua_str(name)}] = {extra[name]},")
     iout.append("}")
-    iout.append("-- Azeroth Commerce Authority")
-    iout.append(f"ns.FACTION_ID = {faction if faction else 'nil'}")
+    iout.append("-- writ factions: Azeroth Commerce Authority (Alliance), Durotar Supply and Logistics (Horde)")
+    iout.append("ns.FACTION_IDS = {")
+    for fname in sorted(factions):
+        iout.append(f"  [{lua_str(fname)}] = {factions[fname]},")
+    iout.append("}")
     new_ids = "\n".join(iout) + "\n"
 
     text = "\n".join(report)
     print(text)
     if not dry:
         open(os.path.join(ROOT, "Writs.lua"), "w", encoding="utf-8").write(new_writs)
-        open(os.path.join(ROOT, "Dests.lua"), "w", encoding="utf-8").write(new_dests)
+        if any(not c.startswith("- disagreement") for c in dchanges):  # unchanged: keep the file as written
+            open(os.path.join(ROOT, "Dests.lua"), "w", encoding="utf-8").write(new_dests)
         open(ids_path, "w", encoding="utf-8").write(new_ids)
         os.makedirs(os.path.join(ROOT, "dev", "data"), exist_ok=True)
         open(os.path.join(ROOT, "dev", "data", "merge_report.md"), "w", encoding="utf-8").write(text + "\n")
