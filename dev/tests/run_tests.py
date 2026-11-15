@@ -400,6 +400,22 @@ local menuItems={}
 for _,f in ipairs(frames) do if f._parent==WritPriceRowMenu and f._kind=="Button" and f._shown then menuItems[#menuItems+1]=f end end
 ok(#menuItems>=3,"menu : "..#menuItems.." actions")
 WritPriceRowMenu:Hide()
+-- turn-in zone filter (click on the Zone header)
+local nAll=#ns.BuildRows("ALL")
+ns.SetZone("Arathi Highlands", false)
+local nNoArathi=#ns.BuildRows("ALL")
+local anyArathi=false for _,r in ipairs(ns.BuildRows("ALL")) do if r.zone=="Arathi Highlands" then anyArathi=true end end
+ok(not anyArathi and ns.ZoneFilterActive(),"filtre zone : Arathi masque ("..nAll.." -> "..nNoArathi..")")
+ns.SetAllZones(false)
+ok(#ns.BuildRows("ALL")==0,"filtre zone : aucune zone -> aucune ligne")
+ns.SetAllZones(true)
+ok(#ns.BuildRows("ALL")==nAll and not ns.ZoneFilterActive(),"filtre zone : toutes les zones")
+ok(ns.ZoneList()[#ns.ZoneList()]=="?","zone inconnue en fin de liste")
+ns.ToggleZoneMenu()
+ok(WritPriceZoneMenu and WritPriceZoneMenu._shown,"menu des zones ouvert")
+ns.ToggleZoneMenu()
+ok(not WritPriceZoneMenu._shown,"menu des zones referme")
+ns.RefreshUI()
 -- turn-in place on the map
 local mapID,x,y=ns.TurnInPoint("Craftsman's Writ: Elixir of Wisdom")
 ok(mapID==1417 and math.abs(x-0.487)<1e-6 and math.abs(y-0.558)<1e-6,"lieu de rendu : carte 1417, 48.7/55.8")

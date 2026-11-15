@@ -24,7 +24,7 @@ local LIST_TOP = -78
 local frame, scroll, rows, status, plan, pending, empty, title
 local scanBtn, craftBtn, profBtn, colsBtn, goalBtn, helpBtn
 local headers, filterBtns = {}, {}
-local profMenu, colsMenu
+local profMenu, colsMenu, zoneMenu, zoneHdr
 local filter = "ALL"
 local data = {}
 
@@ -252,6 +252,7 @@ function ns.RefreshUI()
   ns.Safe(function()
     local t
     data, t = ns.BuildRows(filter)
+    headers.zone:SetText(L.COL_zone .. (ns.ZoneFilterActive() and " |cff40ff40*|r" or ""))
     FauxScrollFrame_Update(scroll, #data, NUM_ROWS, ROW_H)
     local offset = FauxScrollFrame_GetOffset(scroll)
     for i = 1, NUM_ROWS do
@@ -396,6 +397,9 @@ local function LayoutColumns()
     else
       h:Hide()
     end
+    if c.key == "zone" and zoneHdr then
+      if show then zoneHdr:Show() else zoneHdr:Hide() end
+    end
     for _, btn in ipairs(rows) do
       local fs = btn.cells[c.key]
       fs:ClearAllPoints()
@@ -456,8 +460,8 @@ function ns.MakeCheck(parent)
 end
 
 -- keys: list of keys; label(key) -> text; get(key) -> bool; set(key, bool); setAll(bool) optional
-local function BuildCheckMenu(name, anchor, keys, label, get, set, setAll)
-  local ROWH, W = 22, 190
+local function BuildCheckMenu(name, anchor, keys, label, get, set, setAll, rowH)
+  local ROWH, W = rowH or 22, 190
   local n = #keys
   local m = CreateFrame("Frame", name, frame)
   local extra = setAll and (8 + 22 * 2 + 6) or 0
@@ -553,6 +557,16 @@ local function BuildCheckMenu(name, anchor, keys, label, get, set, setAll)
   return m
 end
 
+local function ZoneLabel(z) return z == "?" and L.ZONE_UNKNOWN or z end
+local function ToggleZoneMenu()
+  if not zoneMenu then
+    zoneMenu = BuildCheckMenu("WritPriceZoneMenu", zoneHdr, ns.ZoneList(), ZoneLabel,
+      function(k) return ns.ZoneWanted(k) end, ns.SetZone, ns.SetAllZones, 18)
+  end
+  zoneMenu:Toggle()
+end
+ns.ToggleZoneMenu = ToggleZoneMenu
+
 local function ToggleProfMenu()
   if not profMenu then
     profMenu = BuildCheckMenu("WritPriceProfMenu", profBtn, ns.PROFS, ns.ProfName,
@@ -599,6 +613,7 @@ function ns.ApplyLocale()
   if not frame then return end
   title:SetText(ns.F("UI_TITLE", ns.VERSION))
   for _, c in ipairs(COLS) do headers[c.key]:SetText(L["COL_" .. c.key]) end
+  if zoneMenu then zoneMenu:Relabel() end
   if filterBtns.ALL then filterBtns.ALL:SetText(L.UI_FILTER_ALL) end
   colsBtn:SetText(L.UI_BTN_COLS)
   if profMenu then profMenu:Relabel() end
@@ -955,6 +970,18 @@ local function Build()
     h:SetJustifyH(c.justify)
     headers[c.key] = h
   end
+  -- the Zone header filters by turn-in zone
+  zoneHdr = CreateFrame("Button", nil, frame)
+  zoneHdr:SetPoint("TOPLEFT", headers.zone, "TOPLEFT", -2, 3)
+  zoneHdr:SetPoint("BOTTOMRIGHT", headers.zone, "BOTTOMRIGHT", 2, -3)
+  zoneHdr:SetHighlightTexture("Interface\\QuestFrame\\UI-QuestTitleHighlight", "ADD")
+  zoneHdr:SetScript("OnClick", function() ns.Safe(ToggleZoneMenu) end)
+  zoneHdr:SetScript("OnEnter", function(self)
+    TipTitle(self, L.TIP_ZONE_1)
+    GameTooltip:AddLine(L.TIP_ZONE_2, 1, 1, 1, true)
+    GameTooltip:Show()
+  end)
+  zoneHdr:SetScript("OnLeave", TipHide)
 
   scroll = CreateFrame("ScrollFrame", "WritPriceScroll", frame, "FauxScrollFrameTemplate")
   scroll:SetPoint("TOPLEFT", 16, LIST_TOP)
@@ -1021,6 +1048,7 @@ local function Build()
     if frame:GetFrameStrata() ~= "HIGH" then frame:SetFrameStrata("HIGH") end
     if profMenu then profMenu:Hide() end
     if colsMenu then colsMenu:Hide() end
+    if zoneMenu then zoneMenu:Hide() end
   end)
 
   LayoutColumns()

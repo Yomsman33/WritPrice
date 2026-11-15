@@ -349,4 +349,7 @@ ns.LOCALES.enUS = {
   CHAT_MAP_TOMTOM = "TomTom waypoint: %s (%s).",
   CHAT_MAP_PIN = "Map pin: %s (%s).",
   CHAT_MAP_TEXT = "Turn-in place: %s (%s).",
+  ZONE_UNKNOWN = "Unknown place",
+  TIP_ZONE_1 = "Turn-in zone filter",
+  TIP_ZONE_2 = "Click to choose the zones whose writs are shown (* = filter on). Display only: the scan is not affected.",
 }

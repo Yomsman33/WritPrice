@@ -349,4 +349,7 @@ ns.LOCALES.frFR = {
   CHAT_MAP_TOMTOM = "Point TomTom : %s (%s).",
   CHAT_MAP_PIN = "Repère sur la carte : %s (%s).",
   CHAT_MAP_TEXT = "Lieu de rendu : %s (%s).",
+  ZONE_UNKNOWN = "Lieu inconnu",
+  TIP_ZONE_1 = "Filtre par zone de rendu",
+  TIP_ZONE_2 = "Clique pour choisir les zones dont les writs sont affichés (* = filtre actif). Affichage seulement : le scan n'est pas modifié.",
 }

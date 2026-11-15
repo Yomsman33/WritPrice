@@ -98,7 +98,7 @@ function ns.BuildRows(filter, profOff)
     if seen[name] then return end
     seen[name] = true
     local row = MakeRow(name, sw, sc)
-    if (filter == "ALL" or row.rank == filter) and ns.ProfWanted(row.prof, profOff) then
+    if (filter == "ALL" or row.rank == filter) and ns.ProfWanted(row.prof, profOff) and ns.ZoneWanted(row.zone) then
       rows[#rows + 1] = row
     end
   end

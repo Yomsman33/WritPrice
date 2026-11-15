@@ -4,6 +4,7 @@
 
 - Row tooltip reorganized: header (rank, recipe status, quest), a cost breakdown (writ, item, Coin Pouch, total, per point), the turn-in place and one line telling what a click does where the cursor is. Sources and reagents are shown while Shift is held.
 - Right-click on a row opens a menu: search the writ, search the item, set the quantity, show the turn-in place on the map.
+- Turn-in zone filter: click the Zone column header to choose the zones whose writs are shown.
 - Turn-in place on the map: TomTom waypoint when TomTom is installed, else the game's map pin.
 - Game clients in other languages than English (beta): items and writs are matched by item ID and shown in the game's language, the auction house is searched with the translated names, writ names are learned from a full scan, and the quest log, writ tooltips and known recipes are read in the game's language.
 - `/writs export` on an English client now includes writ, Coin Pouch and faction IDs (merged into the next release for other languages); `/writs import` accepts them.

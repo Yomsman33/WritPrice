@@ -208,6 +208,45 @@ function ns.ProfSummary()
   return n .. "/" .. total
 end
 
+------------------------------------------------------------
+-- Zone filter (ns.db.zoneOff[zone] = true when unchecked; "?" = turn-in place unknown)
+------------------------------------------------------------
+function ns.ZoneKey(zone) return (type(zone) == "string" and zone ~= "") and zone or "?" end
+
+function ns.ZoneWanted(zone)
+  local off = ns.db and ns.db.zoneOff
+  return not (off and off[ns.ZoneKey(zone)])
+end
+
+-- Turn-in zones of the built-in list, sorted, then "?"
+local zoneList
+function ns.ZoneList()
+  if not zoneList then
+    local seen, list = {}, {}
+    for _, d in pairs(ns.WRIT_DEST or {}) do
+      if d.zone and d.zone ~= "" and not seen[d.zone] then seen[d.zone] = true list[#list + 1] = d.zone end
+    end
+    table.sort(list)
+    list[#list + 1] = "?"
+    zoneList = list
+  end
+  return zoneList
+end
+
+function ns.SetZone(zone, on)
+  if not ns.db then return end
+  if type(ns.db.zoneOff) ~= "table" then ns.db.zoneOff = {} end
+  ns.db.zoneOff[ns.ZoneKey(zone)] = (not on) or nil
+end
+
+function ns.SetAllZones(on)
+  for _, z in ipairs(ns.ZoneList()) do ns.SetZone(z, on) end
+end
+
+function ns.ZoneFilterActive()
+  return ns.db and type(ns.db.zoneOff) == "table" and next(ns.db.zoneOff) ~= nil
+end
+
 -- frozen copy of the filter (for a running scan)
 function ns.ProfOffCopy()
   local c = {}
@@ -295,6 +334,11 @@ loader:SetScript("OnEvent", function(self, event, name)
   if type(db.profOff) ~= "table" then db.profOff = {} end
   for k, v in pairs(db.profOff) do
     if not ns.PROF_KEYS[k] or v ~= true then db.profOff[k] = nil end
+  end
+  -- unchecked turn-in zones
+  if type(db.zoneOff) ~= "table" then db.zoneOff = {} end
+  for k, v in pairs(db.zoneOff) do
+    if type(k) ~= "string" or v ~= true then db.zoneOff[k] = nil end
   end
   -- hidden columns
   if type(db.colOff) ~= "table" then db.colOff = {} end
