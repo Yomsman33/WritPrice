@@ -14,6 +14,7 @@ local ADDON, ns = ...
 local N = {
   loc = {},     -- English name -> client name
   rev = {},     -- client name -> English name
+  revF = {},    -- folded client name (see Fold) -> English name
   byID = nil,   -- item ID -> English name (built on first use)
   pending = {}, -- item ID -> English name, waiting for GET_ITEM_INFO_RECEIVED
 }
@@ -28,6 +29,26 @@ function ns.EnglishClient()
 end
 
 local function WritOf(item) return ns.GAME.WRIT_PREFIX .. ": " .. item end
+
+-- Folded for comparisons: lower case, no accents, plain apostrophe. A writ may write its item in
+-- lower case ("Commission d'artisan : potion de mana" for "Potion de mana").
+local FOLD = {
+  ["à"] = "a", ["â"] = "a", ["ä"] = "a", ["À"] = "a", ["Â"] = "a", ["Ä"] = "a",
+  ["é"] = "e", ["è"] = "e", ["ê"] = "e", ["ë"] = "e", ["É"] = "e", ["È"] = "e", ["Ê"] = "e", ["Ë"] = "e",
+  ["î"] = "i", ["ï"] = "i", ["Î"] = "i", ["Ï"] = "i", ["ô"] = "o", ["ö"] = "o", ["Ô"] = "o", ["Ö"] = "o",
+  ["ù"] = "u", ["û"] = "u", ["ü"] = "u", ["Ù"] = "u", ["Û"] = "u", ["Ü"] = "u", ["ç"] = "c", ["Ç"] = "c",
+  ["œ"] = "oe", ["Œ"] = "oe", ["æ"] = "ae", ["Æ"] = "ae", ["’"] = "'", ["‘"] = "'", ["ß"] = "ss",
+}
+local function Fold(str)
+  str = str:lower():gsub("[\195\197\226][\128-\191]+", function(c) return FOLD[c] end)
+  return (str:gsub("%s+", " "))
+end
+ns.FoldName = Fold
+
+local function SetLoc(en, n)
+  N.loc[en], N.rev[n] = n, en
+  N.revF[Fold(n)] = en
+end
 
 -- Item ID of an English name
 function ns.IdOf(en)
@@ -73,11 +94,20 @@ local function Head()
   return N.head
 end
 
-local function SetHead(head)
+-- lowerFirst: the writ writes its item with a lower-case first letter
+local function SetHead(head, lowerFirst)
   if type(head) ~= "string" or head == "" or #head > 60 then return end
   N.head = head
   local d = LocDB()
-  if d then d.head = head end
+  if d then
+    d.head = head
+    if lowerFirst ~= nil then d.lowerFirst = lowerFirst or nil end
+  end
+end
+
+local function IsLowerFirst(rest, item)
+  local a, b = rest:sub(1, 1), item:sub(1, 1)
+  return a ~= b and a == b:lower()
 end
 
 local function ClientName(id)
@@ -94,18 +124,38 @@ local function ClientName(id)
 end
 
 -- Client name of a translated writ: learns the writ head from it
+-- "<head><separator><item>": the head and separator, when the rest is the item (folded)
+local function SplitWrit(name, isItem)
+  for _, sep in ipairs({ ":", "-" }) do
+    local start = 1
+    while true do
+      local i = name:find(sep, start, true)
+      if not i then break end
+      local after = name:sub(i + 1)
+      local spaces = after:match("^%s*")
+      local rest = after:sub(#spaces + 1)
+      if i > 1 and rest ~= "" and isItem(rest) then return name:sub(1, i) .. spaces, rest end
+      start = i + 1
+    end
+  end
+  return nil
+end
+
 local function LearnWritHead(en, n)
   if not ns.IsWrit(en) then return end
   local item = ns.ItemFromWrit(en)
   local li = item and N.loc[item]
-  if li and #n > #li and n:sub(-#li) == li then SetHead(n:sub(1, #n - #li)) end
+  if not li then return end
+  local fli = Fold(li)
+  local head, rest = SplitWrit(n, function(r) return Fold(r) == fli end)
+  if head then SetHead(head, IsLowerFirst(rest, li)) end
 end
 
 -- Asks the client for the name of an ID; returns it when already known
 local function Learn(id, en)
   local n = ClientName(id)
   if n then
-    N.loc[en], N.rev[n] = n, en
+    SetLoc(en, n)
     LearnWritHead(en, n)
     return n
   end
@@ -129,7 +179,11 @@ function ns.LocName(en)
   if ns.IsWrit(en) then
     local li = ns.LocName(ns.ItemFromWrit(en))
     local head = Head()
-    if li and head then return head .. li end
+    if li and head then
+      local d = LocDB()
+      if d and d.lowerFirst then li = li:sub(1, 1):lower() .. li:sub(2) end
+      return head .. li
+    end
   end
   return nil
 end
@@ -139,28 +193,23 @@ function ns.Disp(en)
 end
 
 -- Translated writ name -> English writ name (shape "<head><item>")
+local function ItemEn(rest)
+  local en = N.rev[rest] or N.revF[Fold(rest)]
+  return (en and ns.WRIT_LIST and ns.WRIT_LIST[en]) and en or nil
+end
+
 local function CanonWrit(name)
   local head = Head()
   if head and #name > #head and name:sub(1, #head) == head then
-    local en = N.rev[name:sub(#head + 1)]
+    local en = ItemEn(name:sub(#head + 1))
     if en then return WritOf(en) end
   end
   -- unknown head: try each ":" (then "-") as the separator, the rest must be a requested item
-  for _, sep in ipairs({ ":", "-" }) do
-    local start = 1
-    while true do
-      local i = name:find(sep, start, true)
-      if not i then break end
-      local after = name:sub(i + 1)
-      local spaces = after:match("^%s*")
-      local item = after:sub(#spaces + 1)
-      local en = N.rev[item]
-      if en and ns.WRIT_LIST and ns.WRIT_LIST[en] and i > 1 then
-        SetHead(name:sub(1, i) .. spaces)
-        return WritOf(en)
-      end
-      start = i + 1
-    end
+  local h, rest = SplitWrit(name, function(r) return ItemEn(r) ~= nil end)
+  if h then
+    local en = ItemEn(rest)
+    SetHead(h, N.loc[en] and IsLowerFirst(rest, N.loc[en]) or false)
+    return WritOf(en)
   end
   return nil
 end
@@ -171,12 +220,12 @@ function ns.CanonName(name, id)
   if id then
     local en = ByID()[id]
     if en then
-      N.loc[en], N.rev[name] = name, en
+      SetLoc(en, name)
       LearnWritHead(en, name)
       return en
     end
   end
-  local en = N.rev[name]
+  local en = N.rev[name] or N.revF[Fold(name)]
   if en then return en end
   return CanonWrit(name) or name
 end
@@ -257,7 +306,7 @@ ns.PreloadNames = Preload
 
 -- for the test bench: forget what was learned (the client language changed)
 function ns.ResetNames()
-  N.loc, N.rev, N.byID, N.pending, N.head = {}, {}, nil, {}, nil
+  N.loc, N.rev, N.revF, N.byID, N.pending, N.head = {}, {}, {}, nil, {}, nil
 end
 
 function ns.NamesDiag()
@@ -265,7 +314,7 @@ function ns.NamesDiag()
   for _ in pairs(N.loc) do nLoc = nLoc + 1 end
   local nPend = 0
   for _ in pairs(N.pending) do nPend = nPend + 1 end
-  return ns.ClientLocale(), nLoc, nPend, Head()
+  return ns.ClientLocale(), nLoc, nPend, Head() or ns.WritSearchText()
 end
 
 local ev = CreateFrame("Frame")
@@ -283,7 +332,7 @@ ev:SetScript("OnEvent", function(_, event, id, success)
     ns.Safe(function()
       local n = ClientName(id)
       if n then
-        N.loc[en], N.rev[n] = n, en
+        SetLoc(en, n)
         LearnWritHead(en, n)
       end
     end)

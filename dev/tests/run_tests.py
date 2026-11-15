@@ -657,7 +657,7 @@ local savedExtra=ns.EXTRA_IDS ns.EXTRA_IDS={}
 local MP=ns.ITEM_IDS["Mana Potion"]
 local HL=ns.ITEM_IDS["Heavy Leather"]
 ok(MP==3827 and HL~=nil and ns.WRIT_LIST["Mana Potion"]~=nil,"donnees de test : Mana Potion 3827")
-local WFR="Commande d'artisan : Potion de mana"
+local WFR="Commission d’artisan : potion de mana"
 local FR={[MP]="Potion de mana", [HL]="Cuir épais", [50001]=WFR, [999002]="Bourse de pièces"}
 local frGII=function(id) return FR[id] end
 local origGII2=ns.GetItemInfo
@@ -668,10 +668,10 @@ ok(ns.LocName("Mana Potion")=="Potion de mana" and ns.Disp("Mana Potion")=="Poti
 ok(ns.Disp("Truc Inconnu")=="Truc Inconnu","nom inconnu affiche tel quel")
 ok(ns.WritSearchText()==nil,"prefixe des writs encore inconnu")
 ok(ns.CanonName(WFR)=="Craftsman's Writ: Mana Potion","writ francais reconnu par sa forme")
-ok(ns.WritSearchText()=="Commande d'artisan","prefixe des writs appris")
+ok(ns.WritSearchText()=="Commission d’artisan","prefixe des writs appris")
 ok(ns.LocName("Craftsman's Writ: Mana Potion")==WFR,"nom du writ en francais")
 ok(ns.CanonName("Cuir épais",HL)=="Heavy Leather" and ns.CanonName("Truc",nil)=="Truc","noms ramenes a l'anglais")
-ok(ns.CanonName("Commande d'artisan : Truc")=="Commande d'artisan : Truc","writ d'un objet inconnu : non reconnu")
+ok(ns.CanonName("Commission d’artisan : Truc")=="Commission d’artisan : Truc","writ d'un objet inconnu : non reconnu")
 -- full scan with French names
 ns.ResetNames() ns.PreloadNames()
 AuctionFrame=nil
@@ -699,13 +699,13 @@ ok(not anyFr,"aucun nom francais enregistre comme cle")
 ns.db.done={} ns.db.noReagents=true
 local queries={}
 local lastQ
-local BR={["Commande d'artisan"]={{itemKey={itemID=50001},minPrice=550,totalQuantity=2}},
+local BR={["Commission d’artisan"]={{itemKey={itemID=50001},minPrice=550,totalQuantity=2}},
   ["Potion de mana"]={{itemKey={itemID=MP},minPrice=900,totalQuantity=3}}}
 C_AuctionHouse={SendBrowseQuery=function(q) queries[#queries+1]=q.searchString lastQ=q.searchString end,
   GetBrowseResults=function() return BR[lastQ] or {} end}
 ns.StartScan()
 for k=1,12 do tick(1,0.2) fire("AUCTION_HOUSE_BROWSE_RESULTS_UPDATED") tick(1,0.2) end
-ok(queries[1]=="Commande d'artisan","scan cible : writs cherches en francais")
+ok(queries[1]=="Commission d’artisan","scan cible : writs cherches en francais")
 local askedFr=false for _,q in ipairs(queries) do if q=="Potion de mana" then askedFr=true end end
 ok(askedFr,"scan cible : objet cherche en francais")
 ok(not ns.IsScanning(),"scan cible termine")
@@ -728,7 +728,7 @@ ns.ScanQuestLog()
 local a=ns.ActiveWrit("Craftsman's Writ: Mana Potion")
 ok(a and a.need==5 and a.have==2,"quete de writ en francais reconnue (2/5)")
 ok(ns.questMap[912]==nil,"quete ordinaire avec le meme objet : ignoree")
-Q={{questID=913, title="Commande d'artisan : Potion de mana", obj={{text="Potion de mana : 1/1", type="item", numRequired=1, numFulfilled=1}}}}
+Q={{questID=913, title="Commission d’artisan : potion de mana", obj={{text="Potion de mana : 1/1", type="item", numRequired=1, numFulfilled=1}}}}
 ns.ScanQuestLog()
 ok(ns.questMap[913]=="Craftsman's Writ: Mana Potion","quete au nom du writ en francais")
 Q={} ns.ScanQuestLog()
@@ -778,7 +778,7 @@ local savedIDs=ns.db.itemIDs ns.db.itemIDs={} ns.db.factionIDs=nil
 local r=ns.ApplyImport(tEn)
 ok(r and ns.db.itemIDs["Craftsman's Writ: Mana Potion"]==50001 and ns.db.factionIDs["Azeroth Commerce Authority"]==1234,"import des identifiants (client francais)")
 ns.ResetNames() ns.PreloadNames()
-ok(ns.WritSearchText()=="Commande d'artisan","prefixe connu des l'import (identifiant du writ)")
+ok(ns.WritSearchText()=="Commission d’artisan","prefixe connu des l'import (identifiant du writ)")
 ns.db.itemIDs=savedIDs ns.db.factionIDs=nil
 ns.ResetNames() ns.db.locNames=nil
 local saved3=ns.db.itemIDs
