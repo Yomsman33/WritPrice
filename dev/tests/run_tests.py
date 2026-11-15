@@ -747,6 +747,21 @@ ns.db.scan[ns.RealmKey()]=sc
 ns.db.locNames=nil
 end
 
+-- ===== writ faction hidden in a collapsed reputation category: found by ID (English client) =====
+if ns.EnglishClient() then
+ns.db.factionIDs=nil
+C_Reputation={GetFactionDataByIndex=function(i) if i==1 then return {name="Classic", factionID=1} end end,
+  GetFactionDataByID=function(id) if id==2586 then return {name="Azeroth Commerce Authority", factionID=2586, reaction=5, currentStanding=4500, currentReactionThreshold=3000, nextReactionThreshold=9000} end end}
+local label,v,max=ns.FactionStanding()
+ok(label~=nil and v==1500 and max==6000,"faction trouvee par identifiant (categorie repliee)")
+ok(ns.db.factionIDs and ns.db.factionIDs["Azeroth Commerce Authority"]==2586,"identifiant de la faction appris")
+local calls=0
+C_Reputation.GetFactionDataByID=function(id) calls=calls+1 if id==2586 then return {name="Azeroth Commerce Authority", reaction=5, currentStanding=4500, currentReactionThreshold=3000, nextReactionThreshold=9000} end end
+ns.FactionStanding()
+ok(calls==1,"ensuite lu directement par son identifiant")
+C_Reputation=nil ns.db.factionIDs=nil
+end
+
 -- ===== 0.1.0 learned "the location marked on your map" as a turn-in place: cleaned =====
 do
 local w=ns.WritInfo("Craftsman's Writ: Mana Potion")

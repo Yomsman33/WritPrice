@@ -332,6 +332,27 @@ end
 
 function ns.PrintAPI()
   local build = GetBuildInfo and select(4, GetBuildInfo()) or "?"
+  local list = {
+    "QueryAuctionItems", "GetAuctionItemInfo", "CanSendAuctionQuery", "GetAuctionItemLink",
+    "C_AuctionHouse.SendBrowseQuery", "C_AuctionHouse.GetBrowseResults",
+    "C_AuctionHouse.HasFullBrowseResults", "C_AuctionHouse.RequestMoreBrowseResults",
+    "C_AuctionHouse.IsThrottledMessageSystemReady", "Enum.AuctionHouseFilter.ExactMatch",
+    "Enum.AuctionHouseSortOrder.Price", "AuctionFrame", "AuctionHouseFrame",
+    "AuctionHouseFrame.SearchBar", "AuctionHouseFrame.SetDisplayMode", "AuctionHouseFrameDisplayMode.Buy",
+    "GetItemInfo", "C_Item.GetItemInfo", "TooltipDataProcessor", "C_TooltipInfo",
+    "C_QuestLog.GetInfo", "C_QuestLog.GetQuestObjectives", "GetQuestLogTitle",
+    "GetQuestResetTime", "C_Reputation.GetFactionDataByIndex", "C_Reputation.GetNumFactions",
+    "C_Reputation.GetFactionDataByID", "GetFactionInfo",
+    "GetNumSkillLines", "C_TradeSkillUI", "LibStub", "Auctionator.API.v1",
+    "Settings.RegisterCanvasLayoutCategory", "Settings.RegisterAddOnCategory", "Settings.OpenToCategory",
+    "SettingsPanel", "InterfaceOptions_AddCategory", "InterfaceOptionsFrame_OpenToCategory",
+    "Minimap", "MinimapCluster", "GetMinimapShape", "AddonCompartmentFrame", "LibDBIcon10_WritPrice",
+  }
+  for _, p in ipairs(list) do
+    print(("  %s: %s"):format(p, Has(p) and ("|cff00ff00" .. L.YES .. "|r") or ("|cffff4040" .. L.NO .. "|r")))
+  end
+  if ns.ScanDiag then ns.ScanDiag() end
+  -- summary last, so it stays visible in the chat
   ns.Print(ns.F("DEBUG_CLIENT", tostring(build)))
   if ns.NamesDiag then
     local loc, nLoc, nPend, head = ns.NamesDiag()
@@ -343,25 +364,6 @@ function ns.PrintAPI()
     for name, id in pairs(ns.db.factionIDs or {}) do ids[#ids + 1] = name .. "=" .. id end
     ns.Print(ns.F("DEBUG_FACTION", label or "-", #ids > 0 and table.concat(ids, ", ") or "-"))
   end
-  local list = {
-    "QueryAuctionItems", "GetAuctionItemInfo", "CanSendAuctionQuery", "GetAuctionItemLink",
-    "C_AuctionHouse.SendBrowseQuery", "C_AuctionHouse.GetBrowseResults",
-    "C_AuctionHouse.HasFullBrowseResults", "C_AuctionHouse.RequestMoreBrowseResults",
-    "C_AuctionHouse.IsThrottledMessageSystemReady", "Enum.AuctionHouseFilter.ExactMatch",
-    "Enum.AuctionHouseSortOrder.Price", "AuctionFrame", "AuctionHouseFrame",
-    "AuctionHouseFrame.SearchBar", "AuctionHouseFrame.SetDisplayMode", "AuctionHouseFrameDisplayMode.Buy",
-    "GetItemInfo", "C_Item.GetItemInfo", "TooltipDataProcessor", "C_TooltipInfo",
-    "C_QuestLog.GetInfo", "C_QuestLog.GetQuestObjectives", "GetQuestLogTitle",
-    "GetQuestResetTime", "C_Reputation.GetFactionDataByIndex", "GetFactionInfo",
-    "GetNumSkillLines", "C_TradeSkillUI", "LibStub", "Auctionator.API.v1",
-    "Settings.RegisterCanvasLayoutCategory", "Settings.RegisterAddOnCategory", "Settings.OpenToCategory",
-    "SettingsPanel", "InterfaceOptions_AddCategory", "InterfaceOptionsFrame_OpenToCategory",
-    "Minimap", "MinimapCluster", "GetMinimapShape", "AddonCompartmentFrame", "LibDBIcon10_WritPrice",
-  }
-  for _, p in ipairs(list) do
-    print(("  %s: %s"):format(p, Has(p) and ("|cff00ff00" .. L.YES .. "|r") or ("|cffff4040" .. L.NO .. "|r")))
-  end
-  if ns.ScanDiag then ns.ScanDiag() end
 end
 
 ------------------------------------------------------------

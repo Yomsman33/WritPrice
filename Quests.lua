@@ -269,17 +269,52 @@ local function IsACA(name, id)
   end
   return false
 end
+local function Standing(d)
+  local label = _G["FACTION_STANDING_LABEL" .. (d.reaction or 0)] or "?"
+  return label, (d.currentStanding or 0) - (d.currentReactionThreshold or 0),
+    (d.nextReactionThreshold or 0) - (d.currentReactionThreshold or 0)
+end
+
+-- Faction data by ID: known IDs first; an English client without one looks the IDs up once
+-- (the reputation list hides the factions of collapsed categories).
+local probed = false
+local function ByID()
+  if not (C_Reputation and C_Reputation.GetFactionDataByID) then return nil end
+  local function get(id)
+    local ok, d = pcall(C_Reputation.GetFactionDataByID, id)
+    return ok and type(d) == "table" and d or nil
+  end
+  local ids = {}
+  for _, id in pairs(ns.FACTION_IDS or {}) do ids[#ids + 1] = id end
+  for _, id in pairs(ns.db and ns.db.factionIDs or {}) do ids[#ids + 1] = id end
+  for _, id in ipairs(ids) do
+    local d = get(id)
+    if d and (d.reaction or d.currentStanding) then return d end
+  end
+  if probed or not ns.EnglishClient() then return nil end
+  probed = true
+  local found
+  for id = 1, 5000 do
+    local d = get(id)
+    if d and ns.IsWritFaction(d.name) then
+      IsACA(d.name, id)
+      if d.reaction or d.currentStanding then found = found or d end
+    end
+  end
+  return found
+end
+
 function ns.FactionStanding()
   local ok, a, b, c = pcall(function()
-    if C_Reputation and C_Reputation.GetNumFactions and C_Reputation.GetFactionDataByIndex then
-      for i = 1, C_Reputation.GetNumFactions() do
+    if C_Reputation and C_Reputation.GetFactionDataByIndex then
+      local n = C_Reputation.GetNumFactions and C_Reputation.GetNumFactions() or 500
+      for i = 1, n do
         local d = C_Reputation.GetFactionDataByIndex(i)
-        if d and IsACA(d.name, d.factionID) then
-          local label = _G["FACTION_STANDING_LABEL" .. (d.reaction or 0)] or "?"
-          return label, (d.currentStanding or 0) - (d.currentReactionThreshold or 0),
-            (d.nextReactionThreshold or 0) - (d.currentReactionThreshold or 0)
-        end
+        if not d and not C_Reputation.GetNumFactions then break end
+        if d and IsACA(d.name, d.factionID) then return Standing(d) end
       end
+      local d = ByID()
+      if d then return Standing(d) end
     end
     if GetNumFactions and GetFactionInfo then
       for i = 1, GetNumFactions() do
