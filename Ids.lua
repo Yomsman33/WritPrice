@@ -161,4 +161,5 @@ ns.EXTRA_IDS = {
 }
 -- writ factions: Azeroth Commerce Authority (Alliance), Durotar Supply and Logistics (Horde)
 ns.FACTION_IDS = {
+  ["Azeroth Commerce Authority"] = 2586,
 }
