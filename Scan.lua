@@ -87,6 +87,7 @@ local function ModernRead(q)
     if not name then
       missing = true
     else
+      name = ns.CanonName(name, id) -- English name inside the addon
       rows[#rows + 1] = { name = name, unit = r.minPrice, count = r.totalQuantity or 1, id = id }
       if q.want and name == q.want then found = true end
     end
@@ -130,7 +131,7 @@ local function LegacyRead(q)
       return "stale"
     elseif (buyout or 0) > 0 then
       local c = math.max(count or 1, 1)
-      rows[#rows + 1] = { name = name, unit = buyout / c, count = c, id = itemID, i = i }
+      rows[#rows + 1] = { name = ns.CanonName(name, itemID), unit = buyout / c, count = c, id = itemID, i = i }
     end
   end
   if missing and q.waits < 3 then
@@ -190,6 +191,18 @@ local function Tick()
     if q.label then SetStatus(q.label) end
   end
   local now = GetTime()
+  if not q.sent and not q.text then
+    -- name in the client language, asked to the game: wait a little for it, then skip this item
+    q.text = q.textFn and q.textFn()
+    if not q.text then
+      q.nameT0 = q.nameT0 or now
+      if now - q.nameT0 > 3 then
+        S.cur = nil
+        if res then res.noName = (res.noName or 0) + 1 end
+      end
+      return
+    end
+  end
   if not q.sent then
     if S.modern then
       if ModernReady() then
@@ -271,13 +284,14 @@ local function OnWritRow(r)
   sw.n = sw.n + (r.count or 1)
   if not sw.min or r.unit < sw.min then sw.min = r.unit end
   sw.id = r.id or sw.id
+  if r.id then ns.LearnItemID(r.name, r.id) end
   local w = ns.WritInfo(r.name)
   if not w.rank then w.rank = ns.RankFromAuction(WritLink(r), r.i) end
 end
 
 local function ItemQuery(item, label)
   return {
-    text = item, want = item, exact = true, maxPages = 10, label = label,
+    textFn = function() return ns.LocName(item) end, want = item, exact = true, maxPages = 10, label = label,
     onRow = function(r)
       if r.name ~= item or not r.unit or r.unit <= 0 then return end
       local it = res.items[item]
@@ -288,7 +302,7 @@ local function ItemQuery(item, label)
       end
       it.n = it.n + (r.count or 1)
       if not it.min or r.unit < it.min then it.min = r.unit end
-      if r.id then ns.db.itemIDs[item] = r.id end
+      if r.id then ns.LearnItemID(item, r.id) end
     end,
     onDone = function(q)
       local it = res.items[item]
@@ -328,7 +342,9 @@ local function OnWritsDone()
     -- second try for ranks not read yet (tooltip not loaded on the first pass)
     if not w.rank and sw.id then w.rank = ns.RankFromAuction(WritLink({ id = sw.id })) end
     local item = w.item
-    local wanted = (f == "ALL" or not w.rank or w.rank == f)
+    -- rank read from the tooltip, else the built-in list (a client in another language reads no rank)
+    local rank = w.rank or (item and ns.WRIT_LIST and ns.WRIT_LIST[item] and ns.WRIT_LIST[item].rank)
+    local wanted = (f == "ALL" or not rank or rank == f)
     -- profession filter: only search items of checked professions
     if wanted and not ns.ProfWanted(ns.ProfOf(item), profOff) then wanted = false end
     local doneUntil = ns.db.done[name]
@@ -429,6 +445,8 @@ Finish = function(why)
   SetStatus(nil)
   ns.Print(msg)
   if cached > 0 then ns.Debug(ns.F("CHAT_SCAN_CACHED", cached)) end
+  if (r.noName or 0) > 0 then ns.Print(ns.F("CHAT_LOC_NONAME", r.noName)) end
+  r.noName = nil
 end
 
 function ns.StopScan()
@@ -452,6 +470,17 @@ function ns.StartScan()
     ns.Print(L.CHAT_AH_API)
     return
   end
+  -- client in another language: the writ name is learned from a full scan (or a known writ ID)
+  local writText = ns.WritSearchText()
+  if not writText then
+    if ns.StartFullScan and ns.FullScanWait and ns.FullScanWait() == 0 then
+      ns.Print(L.CHAT_LOC_FULL)
+      ns.StartFullScan()
+    else
+      ns.Print(L.CHAT_LOC_NEED_FULL)
+    end
+    return
+  end
   local filter = (ns.GetFilter and ns.GetFilter()) or "ALL"
   local now = time()
   res = { t = now, writs = {}, items = {}, asked = {}, filter = filter, cached = 0, nAsked = 0,
@@ -471,7 +500,7 @@ function ns.StartScan()
   end
   S.queue, S.cur, S.running, S.failed, S.t0 = {}, nil, true, 0, GetTime()
   Enqueue({
-    text = ns.GAME.WRIT_PREFIX, exact = false, maxPages = 20,
+    text = writText, exact = false, maxPages = 20,
     label = L.SCAN_STATUS_WRITS,
     onRow = OnWritRow, onDone = OnWritsDone,
   })

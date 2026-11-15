@@ -9,7 +9,8 @@ ns.OnLoad = {}
 ns.OnLocale = {} -- called when the language changes (options page, minimap tooltip, popups)
 ns.errorCount = 0
 
--- Game texts the addon matches against. English client only for now (WoW Forever also ships other languages: see README).
+-- English game texts. Names are kept in English inside the addon; Names.lua translates them for clients
+-- in another language (by item ID). The quest-text patterns below are only used on an English client.
 ns.GAME = {
   WRIT_PREFIX = "Craftsman's Writ",
   POUCH = "Coin Pouch",
@@ -331,6 +332,10 @@ end
 function ns.PrintAPI()
   local build = GetBuildInfo and select(4, GetBuildInfo()) or "?"
   ns.Print(ns.F("DEBUG_CLIENT", tostring(build)))
+  if ns.NamesDiag then
+    local loc, nLoc, nPend, head = ns.NamesDiag()
+    ns.Print(ns.F("DEBUG_NAMES", loc, nLoc, nPend, head or "?"))
+  end
   local list = {
     "QueryAuctionItems", "GetAuctionItemInfo", "CanSendAuctionQuery", "GetAuctionItemLink",
     "C_AuctionHouse.SendBrowseQuery", "C_AuctionHouse.GetBrowseResults",

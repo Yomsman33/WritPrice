@@ -3,8 +3,8 @@
 local ADDON, ns = ...
 local L = ns.L
 
--- Best effort for a French client: maps profession names to the internal English names, so skill
--- levels are read. Known-recipe matching and writ detection still expect English names (WoW Forever is English).
+-- French client: maps profession names to the internal English names, so skill levels are read.
+-- Recipe names are translated back to English by item ID (Names.lua).
 local CLIENT_PROF = {
   ["Alchimie"] = "Alchemy", ["Forge"] = "Blacksmithing", ["Ingénierie"] = "Engineering",
   ["Travail du cuir"] = "Leatherworking", ["Couture"] = "Tailoring", ["Cuisine"] = "Cooking",
@@ -78,7 +78,11 @@ function ns.ReadKnownRecipes()
     if GetNumTradeSkills and GetTradeSkillInfo then
       for i = 1, GetNumTradeSkills() do
         local name, kind = GetTradeSkillInfo(i)
-        if name and kind ~= "header" and kind ~= "subheader" then names[#names + 1] = name end
+        if name and kind ~= "header" and kind ~= "subheader" then
+          local link = GetTradeSkillItemLink and GetTradeSkillItemLink(i)
+          local id = type(link) == "string" and tonumber(link:match("item:(%d+)")) or nil
+          names[#names + 1] = ns.CanonName(name, id)
+        end
       end
     end
   end)
@@ -87,7 +91,7 @@ function ns.ReadKnownRecipes()
       if C_TradeSkillUI and C_TradeSkillUI.GetAllRecipeIDs and C_TradeSkillUI.GetRecipeInfo then
         for _, id in ipairs(C_TradeSkillUI.GetAllRecipeIDs() or {}) do
           local info = C_TradeSkillUI.GetRecipeInfo(id)
-          if info and info.name and info.learned ~= false then names[#names + 1] = info.name end
+          if info and info.name and info.learned ~= false then names[#names + 1] = ns.CanonName(info.name) end
         end
         if C_TradeSkillUI.GetTradeSkillLine then
           local _, n, r = C_TradeSkillUI.GetTradeSkillLine()

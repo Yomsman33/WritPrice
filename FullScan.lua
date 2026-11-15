@@ -164,10 +164,11 @@ local Finish
 
 local function Merge()
   local seen = {}
-  local function add(name, b, id)
+  local function add(lname, b, id)
+    local name = ns.CanonName(lname, id) -- English name inside the addon
     local s = seen[name]
     if not s then
-      seen[name] = { min = b.min, n = b.n, idx = b.idx, id = id }
+      seen[name] = { min = b.min, n = b.n, idx = b.idx, id = id, lname = lname }
     else
       s.n = s.n + b.n
       if b.min < s.min then s.min, s.idx = b.min, b.idx end
@@ -190,6 +191,7 @@ local function Commit()
   for name, s in pairs(seen) do
     if ns.IsWrit(name) then
       res.writs[name] = { min = s.min, n = s.n, id = s.id }
+      if s.id then ns.LearnItemID(name, s.id) end
       local w = ns.WritInfo(name)
       if w.item then wanted[w.item] = true end
     end
@@ -212,7 +214,7 @@ local function Commit()
     if s then
       res.items[x] = { min = s.min, n = s.n, t = now }
       res.asked[x] = now
-      if s.id then ns.db.itemIDs[x] = s.id end
+      if s.id then ns.LearnItemID(x, s.id) end
       found = found + 1
     else
       -- an expected item whose ID is among the unidentified auctions: unknown, keep the older price
@@ -254,7 +256,7 @@ local function RankStep()
     if not item then return true end
     local s = F.seen and F.seen[item.name]
     local w = ns.WritInfo(item.name)
-    if s and s.idx and not w.rank and IndexStillIs(s.idx, item.name) then
+    if s and s.idx and not w.rank and IndexStillIs(s.idx, s.lname or item.name) then
       w.rank = ns.RankFromAuction(Link(s.idx), F.kind == "legacy" and s.idx or nil)
       if not w.rank and item.tries < 3 then
         item.tries = item.tries + 1

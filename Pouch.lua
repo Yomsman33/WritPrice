@@ -132,9 +132,9 @@ local function CountPouches()
       end
       if id then
         local name = ns.GetItemInfo and ns.GetItemInfo(id)
-        if name == ns.GAME.POUCH or (ns.db.pouch and ns.db.pouch.itemID == id) then
+        if ns.IsPouch(id, name) then
           n = n + (count or 1)
-          if name == ns.GAME.POUCH then DB().itemID = id end
+          if name == ns.GAME.POUCH then DB().itemID = id end -- English client: ID learned for exports
         end
       end
     end
@@ -263,6 +263,6 @@ function ns.PrintPouch()
   for i = 1, math.min(8, #all) do
     local a = all[i]
     print(("    %s - %s - %s - %s%s"):format(date and date("%d/%m %H:%M", a.s.t) or a.s.t, a.rank, ns.Coins(a.s.v),
-      a.s.item or "?", a.s.dest and (" @ " .. a.s.dest) or ""))
+      a.s.item and ns.Disp(a.s.item) or "?", a.s.dest and (" @ " .. a.s.dest) or ""))
   end
 end

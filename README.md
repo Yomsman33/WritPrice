@@ -44,11 +44,11 @@ WritPrice scans the auction house for every Craftsman's Writ and the item each o
 
 ## Help improve the data
 
-Type `/writs export`, press Ctrl+C and paste the text in a comment on the project page (or a GitHub issue). It only contains what your addon learned in game: where writs are turned in, requested quantities, ranks and your Coin Pouch values; no character, realm or money information. Each release merges these exports, so the turn-in list and pouch values get better for everyone. `/writs import` lets you use a friend's export right away.
+Type `/writs export`, press Ctrl+C and paste the text in a comment on the project page (or a GitHub issue). It only contains what your addon learned in game: where writs are turned in, requested quantities, ranks, your Coin Pouch values and, on an English client, the item IDs of writs and pouches (they make WritPrice work in other game languages); no character, realm or money information. Each release merges these exports, so the turn-in list and pouch values get better for everyone. `/writs import` lets you use a friend's export right away.
 
 ## Known limits
 
-- **For now WritPrice needs the game client in English.** WoW Forever also exists in other languages (French, German…), but writs, items, Coin Pouches and quest texts are recognized by their English names, so the auction house scan finds nothing on another client. Support for other game languages is planned for the next version. The addon's own interface is available in English and French.
+- **Game in another language than English: beta, not tested in game yet.** WritPrice recognizes writs and items by their item IDs and asks the game for their names in your language. The first time, run a **full scan**: it teaches WritPrice the writ names of your language (the targeted scan needs them). Turn-in places stay in English, ranks come from the built-in list, and until the next data update the Coin Pouch and the reputation standing are only found on an English client (or after `/writs import` of an English player's export). Profession levels are read in English and French.
 - Recipes come from Classic data (AtlasLootClassic, pfQuest): WoW Forever may differ for some of them.
 - Turn-in places and the writ list come from community guides and are not verified: the quest text in game always wins.
 - Prices are kept per realm and faction. Classic Era is not supported.
@@ -76,7 +76,7 @@ WritPrice scanne l'hôtel des ventes pour tous les Craftsman's Writs et l'objet 
 - Bourses de récompense enregistrées à chaque rendu (writ, PNJ, zone), médiane déduite du coût, partage avec la guilde et le groupe.
 - Interface en anglais ou en français : `/writs lang fr`.
 
-**Important : pour l'instant, le jeu lui-même doit être en anglais.** Les writs, les objets, les bourses et les textes de quête sont reconnus par leur nom anglais : avec le jeu en français, le scan de l'hôtel des ventes ne trouve rien. La prise en charge du jeu en français est prévue pour la prochaine version.
+**Jeu en français (bêta, pas encore testé en jeu) :** WritPrice reconnaît les writs et les objets par leur identifiant et demande au jeu leur nom en français. La première fois, lance un **scan complet** : il apprend à WritPrice le nom des writs en français (le scan ciblé en a besoin). Les lieux de rendu restent en anglais, les rangs viennent de la liste intégrée et, jusqu'à la prochaine mise à jour des données, la bourse et la réputation ne sont reconnues qu'avec le jeu en anglais (ou après `/writs import` de l'export d'un joueur en anglais).
 
 Aide à améliorer les données : tape `/writs export`, copie (Ctrl+C) et colle le texte en commentaire sur la page du projet. Il ne contient que ce que l'addon a appris en jeu (lieux de rendu, quantités, rangs, bourses), rien de personnel.
 

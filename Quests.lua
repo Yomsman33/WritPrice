@@ -36,13 +36,13 @@ local function Objectives(questID, logIndex)
   return out
 end
 
--- "Name: 0/5" (Classic) or "0/5 Name" (modern)
+-- "Name: 0/5" (Classic) or "0/5 Name" (modern). The name is returned in English (see Names.lua).
 local function ParseObjective(o)
   local t = o.text or ""
   local name, have, need = t:match("^(.-)%s*:%s*(%d+)%s*/%s*(%d+)")
   if not name then have, need, name = t:match("^(%d+)%s*/%s*(%d+)%s+(.+)$") end
   if name == "" then name = nil end
-  return name, o.need or tonumber(need), o.have or tonumber(have)
+  return ns.CanonName(name), o.need or tonumber(need), o.have or tonumber(have), name
 end
 
 -- Objective text of a quest ("Deliver ... to <NPC> at <place> in <zone>.")
@@ -69,7 +69,8 @@ end
 
 -- "... to Ziz Fizziks at Windshear Crag in Stonetalon Mountains." -> "Ziz Fizziks at Windshear Crag in Stonetalon Mountains"
 local function ParseDestination(text)
-  if not text then return nil end
+  -- English quest text only: another client falls back to the built-in list
+  if not text or not ns.EnglishClient() then return nil end
   text = text:gsub("%s+", " ")
   local dest = text:match(ns.GAME.DELIVER_TO) or text:match(ns.GAME.TO)
   if dest and #dest > 2 and #dest < 120 then return dest end
@@ -141,7 +142,8 @@ function ns.ScanQuestLog()
   local active = {}
   EachQuest(function(questID, title, idx)
     local objs = Objectives(questID, idx)
-    local writName = ns.IsWrit(title) and title or nil
+    local canonTitle = ns.CanonName(title)
+    local writName = ns.IsWrit(canonTitle) and canonTitle or nil
     for _, o in ipairs(objs) do
       local n = ParseObjective(o)
       if ns.IsWrit(n) then writName = n end
@@ -158,6 +160,17 @@ function ns.ScanQuestLog()
           end
         end
         titleQty = tonumber(n)
+      end
+    end
+    -- another client language: a quest asking for a writ item, named in the title (item or quantity)
+    if not writName and not ns.EnglishClient() then
+      for _, o in ipairs(objs) do
+        local n, need, _, raw = ParseObjective(o)
+        if not writName and n and ns.WRIT_LIST and ns.WRIT_LIST[n] and (o.type == nil or o.type == "item") then
+          local named = (raw and title:find(raw, 1, true))
+            or (need and title:find("%f[%d]" .. need .. "%f[%D]"))
+          if named then writName = WritForItem(n) end
+        end
       end
     end
     if not writName then return end
@@ -229,13 +242,23 @@ end
 
 -- Current standing with the Azeroth Commerce Authority (nil when not found)
 -- Returns: standing label, value within the standing, standing size
+-- Found by faction ID (any client language) or by its English name; an English client learns the ID.
 local FACTION = ns.GAME.FACTION
+local function IsACA(name, id)
+  local fid = ns.FactionID and ns.FactionID()
+  if fid and id == fid then return true end
+  if name == FACTION then
+    if id and ns.db and not ns.db.factionID then ns.db.factionID = id end
+    return true
+  end
+  return false
+end
 function ns.FactionStanding()
   local ok, a, b, c = pcall(function()
     if C_Reputation and C_Reputation.GetNumFactions and C_Reputation.GetFactionDataByIndex then
       for i = 1, C_Reputation.GetNumFactions() do
         local d = C_Reputation.GetFactionDataByIndex(i)
-        if d and d.name == FACTION then
+        if d and IsACA(d.name, d.factionID) then
           local label = _G["FACTION_STANDING_LABEL" .. (d.reaction or 0)] or "?"
           return label, (d.currentStanding or 0) - (d.currentReactionThreshold or 0),
             (d.nextReactionThreshold or 0) - (d.currentReactionThreshold or 0)
@@ -244,8 +267,8 @@ function ns.FactionStanding()
     end
     if GetNumFactions and GetFactionInfo then
       for i = 1, GetNumFactions() do
-        local name, _, standingID, barMin, barMax, barValue = GetFactionInfo(i)
-        if name == FACTION then
+        local name, _, standingID, barMin, barMax, barValue, _, _, _, _, _, _, _, factionID = GetFactionInfo(i)
+        if IsACA(name, factionID) then
           return _G["FACTION_STANDING_LABEL" .. (standingID or 0)] or "?", barValue - barMin, barMax - barMin
         end
       end

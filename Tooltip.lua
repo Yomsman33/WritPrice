@@ -18,8 +18,10 @@ end
 
 local function Handle(tooltip, data)
   if not ns.db or done[tooltip] or not tooltip.GetItem then return end
-  local ok, name = pcall(tooltip.GetItem, tooltip)
+  local ok, name, link = pcall(tooltip.GetItem, tooltip)
   if not ok then return end
+  local id = type(link) == "string" and tonumber(link:match("item:(%d+)")) or nil
+  name = ns.CanonName(name, id) -- English name inside the addon
   if not ns.IsWrit(name) then return end
   done[tooltip] = true
   ns.lastWrit = name
@@ -43,7 +45,7 @@ local function Handle(tooltip, data)
   end
   if ns.CurrentScan() then
     Add(L.TT_WRIT_LAST, row.active and L.CELL_OWNED or (row.writMin and ns.Coins(row.writMin) or L.TT_NOT_FOR_SALE))
-    local label = (row.qtyEst and "1? x " or (row.qty .. " x ")) .. (row.item or "?")
+    local label = (row.qtyEst and "1? x " or (row.qty .. " x ")) .. (row.item and ns.Disp(row.item) or "?")
     local value
     if row.unit then
       value = ns.Coins(row.unit * row.qty)

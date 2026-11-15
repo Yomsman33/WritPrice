@@ -2,7 +2,10 @@
 
 ## Unreleased
 
-- Documentation: WritPrice needs the English game client for now (the README wrongly said WoW Forever is English-only). Support for other game languages is planned.
+- Game clients in other languages than English (beta): items and writs are matched by item ID and shown in the game's language, the auction house is searched with the translated names, writ names are learned from a full scan, and the quest log, writ tooltips and known recipes are read in the game's language.
+- `/writs export` on an English client now includes writ, Coin Pouch and faction IDs (merged into the next release for other languages); `/writs import` accepts them.
+- `/writs debug api` shows the game language and how many names are translated.
+- Documentation: the README wrongly said WoW Forever is English-only.
 
 ## 0.1.0 - 2026-11-14
 

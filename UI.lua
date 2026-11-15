@@ -166,6 +166,7 @@ local function SearchInAH(name)
     ns.Print(L.CHAT_SEARCH_BUSY)
     return
   end
+  name = ns.Disp(name) -- the auction house searches in the client language
   local bar = AuctionHouseFrame and AuctionHouseFrame:IsShown() and AuctionHouseFrame.SearchBar
   if bar and bar.SearchBox then
     -- on another tab (Sell, Auctions, Auctionator...): go back to Buy first
@@ -201,7 +202,7 @@ local function CellText(row, key)
   if key == "rank" then
     return row.rank and (row.rank .. " " .. row.rep) or "?"
   elseif key == "item" then
-    local s = row.item or row.name
+    local s = ns.Disp(row.item or row.name)
     if row.noItem then s = s .. " |cffff6060" .. L.CELL_NOT_ON_AH .. "|r" end
     if row.notScanned then s = s .. " |cff999999" .. L.CELL_NOT_SCANNED .. "|r" end
     if row.done then s = s .. " |cffff6060" .. L.CELL_DONE .. "|r" end
@@ -613,7 +614,7 @@ local function RowTooltip(self)
   if not row then return end
   GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
   TipMinWidth(340)
-  GameTooltip:AddLine(row.name, 1, 0.82, 0)
+  GameTooltip:AddLine(ns.Disp(row.name), 1, 0.82, 0)
   if row.prof then GameTooltip:AddLine(ns.F("ROW_PROF", ns.ProfName(row.prof)), 0.6, 0.8, 1) end
   if row.writCount then GameTooltip:AddLine(ns.Plural(row.writCount, "ROW_FOR_SALE"), 0.7, 0.7, 0.7) end
   if row.qtyEst then
@@ -838,7 +839,7 @@ local function Build()
     btn:SetScript("OnClick", function(self, mouse)
       if not self.row then return end
       if mouse == "RightButton" then
-        local dlg = StaticPopup_Show("WRITPRICE_QTY", self.row.name, nil, self.row.name)
+        local dlg = StaticPopup_Show("WRITPRICE_QTY", ns.Disp(self.row.name), nil, self.row.name)
         if dlg then dlg.data = self.row.name end
       elseif ItemZone(self) and self.row.item then
         SearchInAH(self.row.item)

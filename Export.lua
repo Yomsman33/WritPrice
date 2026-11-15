@@ -10,6 +10,8 @@
 --   Q;<item>;<quantity>;<rank>         quantity read from the quest log (rank when known)
 --   R;<item>;<rank>                    rank read from the writ tooltip
 --   P;<rank>;<copper>;<time>;<id>;<item>;<turn-in text>;<zone>   own Coin Pouch sample
+--   I;<English name>;<item ID>         writ, Coin Pouch or requested item ID (English client only)
+--   F;<faction ID>                     Azeroth Commerce Authority faction ID (English client only)
 --   END;<checksum>                     sum of the bytes of the lines above, modulo 65536, in hex
 local ADDON, ns = ...
 local L = ns.L
@@ -63,6 +65,36 @@ function ns.BuildExport()
       end
     end
   end
+  -- IDs for clients in other languages (Names.lua). Only an English client knows the English names.
+  counts.I = 0
+  if ns.EnglishClient() then
+    local ids = {}
+    for name, id in pairs(ns.db.itemIDs or {}) do
+      local item = ns.ItemFromWrit(name)
+      local wanted = (ns.IsWrit(name) and item and ns.WRIT_LIST and ns.WRIT_LIST[item])
+        or (ns.WRIT_LIST and ns.WRIT_LIST[name] and not (ns.ITEM_IDS and ns.ITEM_IDS[name]))
+      if wanted and type(id) == "number" and not (ns.EXTRA_IDS and ns.EXTRA_IDS[name] == id) then ids[name] = id end
+    end
+    local sc = ns.CurrentScan and ns.CurrentScan()
+    for name, sw in pairs(sc and sc.writs or {}) do
+      if sw.id and not ids[name] and not (ns.EXTRA_IDS and ns.EXTRA_IDS[name]) then ids[name] = sw.id end
+    end
+    local pid = ns.db.pouch and ns.db.pouch.itemID
+    if type(pid) == "number" and not (ns.EXTRA_IDS and ns.EXTRA_IDS[ns.GAME.POUCH]) then ids[ns.GAME.POUCH] = pid end
+    local names = {}
+    for name in pairs(ids) do names[#names + 1] = name end
+    table.sort(names)
+    for _, name in ipairs(names) do
+      lines[#lines + 1] = table.concat({ "I", Field(name), tostring(ids[name]) }, ";")
+      counts.I = counts.I + 1
+    end
+    if ns.FactionStanding then ns.FactionStanding() end -- learns the faction ID when not known yet
+    local fid = ns.db.factionID
+    if type(fid) == "number" and not ns.FACTION_ID then
+      lines[#lines + 1] = "F;" .. fid
+      counts.I = counts.I + 1
+    end
+  end
   local body = table.concat(lines, "\n")
   return body .. "\nEND;" .. Checksum(body), counts
 end
@@ -111,6 +143,22 @@ function ns.ApplyImport(text)
     elseif kind == "P" then
       local info = { item = f[6], dest = f[7], zone = f[8] }
       if ns.AddPouchSample(f[2], tonumber(f[3]), tonumber(f[4]), f[5], "import", info) then res.P = res.P + 1 end
+    elseif kind == "I" then
+      -- an English player's IDs: lets a client in another language find these items at once
+      local name, id = ns.CleanShareText(f[2], 80), tonumber(f[3])
+      local item = name and ns.ItemFromWrit(name)
+      local valid = name and id and id > 0 and id < 10000000 and ((ns.IsWrit(name) and item and ns.WRIT_LIST and ns.WRIT_LIST[item])
+        or name == ns.GAME.POUCH or (ns.WRIT_LIST and ns.WRIT_LIST[name]))
+      if valid and not ns.IdOf(name) then
+        if name == ns.GAME.POUCH then
+          ns.db.pouch.itemID = ns.db.pouch.itemID or id
+        else
+          ns.LearnItemID(name, id)
+        end
+      end
+    elseif kind == "F" then
+      local id = tonumber(f[2])
+      if id and id > 0 and not ns.db.factionID then ns.db.factionID = id end
     end
   end
   ns.pouchCache = nil

@@ -28,4 +28,7 @@ S = [
 ("DEBUG_EXACT_BAD", "unusable, disabled", "inutilisable, désactivé"),
 ("TIP_AHBTN_1", "Opens or closes the WritPrice window (last saved scan).", "Ouvre ou ferme la fenêtre WritPrice (dernier scan enregistré)."),
 ("TIP_AHBTN_2", "Scanning starts from the Scan button in that window.", "Le scan se lance avec le bouton Scan de cette fenêtre."),
+("CHAT_LOC_FULL", "Your game is not in English: a full scan runs first, to learn the writ names of your language.", "Ton jeu n'est pas en anglais : un scan complet est lancé d'abord, pour apprendre le nom des writs dans ta langue."),
+("CHAT_LOC_NEED_FULL", "Your game is not in English and the writ names of your language are not known yet: run a full scan once (allowed about every 15 minutes).", "Ton jeu n'est pas en anglais et le nom des writs dans ta langue n'est pas encore connu : lance une fois un scan complet (autorisé environ toutes les 15 minutes)."),
+("CHAT_LOC_NONAME", "%d item(s) skipped: their name in your language is not loaded yet. Scan again in a moment.", "%d objet(s) ignoré(s) : leur nom dans ta langue n'est pas encore chargé. Relance le scan dans un instant."),
 ]

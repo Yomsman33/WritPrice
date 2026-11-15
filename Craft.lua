@@ -71,13 +71,15 @@ function ns.AddCraftLines(tt, item, qty)
   for _, p in ipairs(parts) do
     local right = p.price and (ns.Coins(p.price * p.count) .. " |cff999999" .. L["SRC_" .. p.src] .. "|r")
       or ("|cff999999" .. L.TIP_NO_PRICE .. "|r")
-    tt:AddDoubleLine(("  %d x %s"):format(p.count, p.name), right, 0.9, 0.9, 0.9, 1, 1, 1)
+    tt:AddDoubleLine(("  %d x %s"):format(p.count, ns.Disp(p.name)), right, 0.9, 0.9, 0.9, 1, 1, 1)
   end
   if cost then
     tt:AddDoubleLine(L.TIP_CRAFT_UNIT, ns.Coins(cost), 0.4, 1, 0.4, 1, 1, 1)
     if qty > 1 then tt:AddDoubleLine(ns.F("TIP_CRAFT_TOTAL", qty), ns.Coins(cost * qty), 0.4, 1, 0.4, 1, 1, 1) end
   else
-    tt:AddLine(ns.F("TIP_PRICE_MISSING", table.concat(missing, ", ")), 0.7, 0.7, 0.7)
+    local shown = {}
+    for i, m in ipairs(missing) do shown[i] = ns.Disp(m) end
+    tt:AddLine(ns.F("TIP_PRICE_MISSING", table.concat(shown, ", ")), 0.7, 0.7, 0.7)
     tt:AddLine(L.TIP_PRICE_MISSING_WHY, 0.7, 0.7, 0.7)
   end
 end

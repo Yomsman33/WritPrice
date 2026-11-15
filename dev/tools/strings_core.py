@@ -44,7 +44,7 @@ S = [
 ("WELCOME", "WritPrice %s loaded. Open the auction house and click the WritPrice button, or type /writs. Help: /writs help", "WritPrice %s chargé. Ouvre l'hôtel des ventes et clique sur le bouton WritPrice, ou tape /writs. Aide : /writs help"),
 ("ABOUT_1", "WritPrice %s by Yoms - license GPL-2.0-only.", "WritPrice %s par Yoms - licence GPL-2.0-only."),
 ("ABOUT_2", "Recipe data: AtlasLootClassic (GPL v2) and pfQuest (MIT). Writ list and turn-in hints: community guides (see CREDITS.md).", "Recettes : AtlasLootClassic (GPL v2) et pfQuest (MIT). Liste des writs et lieux de rendu : guides communautaires (voir CREDITS.md)."),
-("ABOUT_3", "Writs and items are recognized by their English names: the game client must be in English for now.", "Les writs et objets sont reconnus par leur nom anglais : le jeu doit être en anglais pour l'instant."),
+("ABOUT_3", "Game in another language than English (beta): run a full scan first, it teaches WritPrice the writ names.", "Jeu dans une autre langue que l'anglais (bêta) : lance d'abord un scan complet, il apprend à WritPrice le nom des writs."),
 ("HELP_HEADER", "WritPrice %s - commands:", "WritPrice %s - commandes :"),
 ("HELP_1", "/writs - open or close the window", "/writs - ouvrir ou fermer la fenêtre"),
 ("HELP_2", "/writs scan, /writs stop - start or stop a scan (auction house open)", "/writs scan, /writs stop - lancer ou arrêter un scan (hôtel des ventes ouvert)"),
@@ -56,4 +56,5 @@ S = [
 ("HELP_8", "/writs lang <en|fr|auto> - language", "/writs lang <en|fr|auto> - langue"),
 ("HELP_9", "/writs pouch, /writs export, /writs import, /writs about - pouch values, share data, credits", "/writs pouch, /writs export, /writs import, /writs about - bourses, partage des données, crédits"),
 ("HELP_DEBUG", "/writs debug api | quests | dests | on | off", "/writs debug api | quests | dests | on | off"),
+("DEBUG_NAMES", "Game language: %s, %d names translated, %d waiting, writ prefix: %s", "Langue du jeu : %s, %d noms traduits, %d en attente, préfixe des writs : %s"),
 ]

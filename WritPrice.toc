@@ -3,7 +3,7 @@
 ## Notes: Ranks Craftsman's Writs by cost per reputation point, from a targeted auction house scan. /writs
 ## Notes-frFR: Classe les Craftsman's Writs par coût par point de réputation, à partir d'un scan ciblé de l'hôtel des ventes. /writs
 ## Author: Yoms
-## Version: 0.1.0
+## Version: 0.1.1-dev
 ## SavedVariables: WritPriceDB
 ## OptionalDeps: Auctionator
 ## IconTexture: Interface\Icons\INV_Scroll_03
@@ -21,9 +21,11 @@ Locales\enUS.lua
 Locales\frFR.lua
 Core.lua
 Recipes.lua
+Ids.lua
 Atr.lua
 Writs.lua
 Dests.lua
+Names.lua
 Craft.lua
 Profs.lua
 Quests.lua

@@ -302,7 +302,7 @@ ok(hat and hat.active and not hat.ready and hat.total==8900,"writ en cours : tot
 ok(belt and belt.ready and belt.total==0,"writ pret, absent du scan mais liste")
 ok(rows[1].active and rows[2].active,"en cours en tete")
 local pn2,pr2,nr2,rr2=ns.PendingRep() ok(pn2==2 and pr2==250 and nr2==1 and rr2==125,"reputation en attente")
-ok(hat.dest=="Garek at Dustwind Gulch in Badlands" and hat.zone=="Badlands","destination lue dans la quete")
+if ns.EnglishClient() then ok(hat.dest=="Garek at Dustwind Gulch in Badlands" and hat.zone=="Badlands","destination lue dans la quete") else ok(hat.destSrc=="guide" or hat.dest==nil,"client non anglais : destination du guide") end
 local d,z,src=ns.WritDestination(W.."Heavy Quiver")
 ok(z=="Stonetalon Mountains" and src=="guide","destination de la liste integree")
 local cnt=0 for _,r in ipairs(rows) do if r.item=="Comfortable Leather Hat" then cnt=cnt+1 end end
@@ -334,7 +334,7 @@ C_AuctionHouse={SendBrowseQuery=function() end, GetBrowseResults=function() retu
 ns.StartScan()
 before=#printed
 ns.StopScan()
-ok(#printed-before==1,"une seule ligne a l'arret du scan")
+if ns.EnglishClient() then ok(#printed-before==1,"une seule ligne a l'arret du scan") else ok(count(Lc.CHAT_LOC_NEED_FULL)+count(Lc.CHAT_LOC_FULL)>=1,"client non anglais : nom des writs inconnu -> scan complet demande") end
 
 
 -- goal from the reputation level (bug of 0.9.2: always 1000)
@@ -597,6 +597,146 @@ local pm,pn=ns.PouchMedian("Artisan")
 ok(pm==12345 and pn==0,"valeur de bourse integree sans releve")
 ns.POUCH_DEFAULT=nil ns.pouchCache=nil
 
+
+-- ===== game client in French (names translated by item ID, Names.lua) =====
+do
+local origLocale=GetLocale()
+local origGetLocale=GetLocale
+GetLocale=function() return "frFR" end
+ns.ResetNames() ns.db.locNames=nil
+local MP=ns.ITEM_IDS["Mana Potion"]
+local HL=ns.ITEM_IDS["Heavy Leather"]
+ok(MP==3827 and HL~=nil and ns.WRIT_LIST["Mana Potion"]~=nil,"donnees de test : Mana Potion 3827")
+local WFR="Commande d'artisan : Potion de mana"
+local FR={[MP]="Potion de mana", [HL]="Cuir épais", [50001]=WFR, [999002]="Bourse de pièces"}
+local frGII=function(id) return FR[id] end
+local origGII2=ns.GetItemInfo
+ns.GetItemInfo=frGII
+ok(not ns.EnglishClient(),"client francais detecte")
+ns.PreloadNames()
+ok(ns.LocName("Mana Potion")=="Potion de mana" and ns.Disp("Mana Potion")=="Potion de mana","nom traduit par l'identifiant")
+ok(ns.Disp("Truc Inconnu")=="Truc Inconnu","nom inconnu affiche tel quel")
+ok(ns.WritSearchText()==nil,"prefixe des writs encore inconnu")
+ok(ns.CanonName(WFR)=="Craftsman's Writ: Mana Potion","writ francais reconnu par sa forme")
+ok(ns.WritSearchText()=="Commande d'artisan","prefixe des writs appris")
+ok(ns.LocName("Craftsman's Writ: Mana Potion")==WFR,"nom du writ en francais")
+ok(ns.CanonName("Cuir épais",HL)=="Heavy Leather" and ns.CanonName("Truc",nil)=="Truc","noms ramenes a l'anglais")
+ok(ns.CanonName("Commande d'artisan : Truc")=="Commande d'artisan : Truc","writ d'un objet inconnu : non reconnu")
+-- full scan with French names
+ns.ResetNames() ns.PreloadNames()
+AuctionFrame=nil
+AuctionHouseFrame=CreateFrame("Frame")
+local function E2(name,count,buyout,id) return {name,nil,count,1,true,1,0,1,1,buyout,0,false,nil,"x",nil,0,id,true} end
+local REP2={E2(WFR,1,600,50001),E2("Potion de mana",4,4000,MP),E2("Cuir épais",1,300,HL),E2("Objet quelconque",1,50,77777)}
+FR[77777]="Objet quelconque"
+C_AuctionHouse={SendBrowseQuery=function() end, GetBrowseResults=function() return {} end,
+  ReplicateItems=function() end,
+  GetNumReplicateItems=function() return #REP2 end,
+  GetReplicateItemInfo=function(i) return unpack(REP2[i+1]) end,
+  GetReplicateItemLink=function(i) return "item:"..(REP2[i+1][17] or 0) end}
+ns.db.fullAt=nil ns.db.scanMode=nil NOW=NOW+3600
+ns.StartFullScan()
+fire("REPLICATE_ITEM_LIST_UPDATE") tick(1,0.5) tick(12) tick(1,9) tick(10)
+ok(not ns.IsScanning(),"scan complet (client francais) termine")
+local f2=ns.CurrentScan()
+ok(f2.writs["Craftsman's Writ: Mana Potion"] and f2.writs["Craftsman's Writ: Mana Potion"].min==600,"scan complet : writ francais range sous son nom anglais")
+ok(f2.items["Mana Potion"] and f2.items["Mana Potion"].min==1000,"scan complet : objet demande en francais")
+ok(f2.items["Heavy Leather"] and f2.items["Heavy Leather"].min==300,"scan complet : composant en francais")
+ok(ns.db.itemIDs["Craftsman's Writ: Mana Potion"]==50001,"identifiant du writ appris")
+local anyFr=false for k in pairs(ns.db.itemIDs) do if k:find("Potion de",1,true) or k:find("Commande",1,true) then anyFr=true end end
+ok(not anyFr,"aucun nom francais enregistre comme cle")
+-- targeted scan: French search texts, results back in English
+ns.db.done={} ns.db.noReagents=true
+local queries={}
+local lastQ
+local BR={["Commande d'artisan"]={{itemKey={itemID=50001},minPrice=550,totalQuantity=2}},
+  ["Potion de mana"]={{itemKey={itemID=MP},minPrice=900,totalQuantity=3}}}
+C_AuctionHouse={SendBrowseQuery=function(q) queries[#queries+1]=q.searchString lastQ=q.searchString end,
+  GetBrowseResults=function() return BR[lastQ] or {} end}
+ns.StartScan()
+for k=1,12 do tick(1,0.2) fire("AUCTION_HOUSE_BROWSE_RESULTS_UPDATED") tick(1,0.2) end
+ok(queries[1]=="Commande d'artisan","scan cible : writs cherches en francais")
+local askedFr=false for _,q in ipairs(queries) do if q=="Potion de mana" then askedFr=true end end
+ok(askedFr,"scan cible : objet cherche en francais")
+ok(not ns.IsScanning(),"scan cible termine")
+local f3=ns.CurrentScan()
+ok(f3.writs["Craftsman's Writ: Mana Potion"] and f3.writs["Craftsman's Writ: Mana Potion"].min==550,"scan cible : writ sous son nom anglais")
+ok(f3.items["Mana Potion"] and f3.items["Mana Potion"].min==900,"scan cible : prix de l'objet")
+ns.db.noReagents=nil
+-- display
+ns.ShowUI() ns.RefreshUI()
+local shownFr=false
+for _,f in ipairs(frames) do if type(f._text)=="string" and f._text:find("Potion de mana",1,true) and f._shown then shownFr=true end end
+ok(shownFr,"fenetre : nom affiche en francais")
+-- quest log in French
+Q={
+  {questID=911, title="Livrer 5 Potions de mana", obj={{text="Potion de mana : 2/5", type="item", numRequired=5, numFulfilled=2}}},
+  {questID=912, title="Le retour du roi", obj={{text="Potion de mana : 0/3", type="item", numRequired=3, numFulfilled=0}}},
+}
+GetQuestLogQuestText=function() return "desc", "Apportez les potions a quelqu'un." end
+ns.ScanQuestLog()
+local a=ns.ActiveWrit("Craftsman's Writ: Mana Potion")
+ok(a and a.need==5 and a.have==2,"quete de writ en francais reconnue (2/5)")
+ok(ns.questMap[912]==nil,"quete ordinaire avec le meme objet : ignoree")
+Q={{questID=913, title="Commande d'artisan : Potion de mana", obj={{text="Potion de mana : 1/1", type="item", numRequired=1, numFulfilled=1}}}}
+ns.ScanQuestLog()
+ok(ns.questMap[913]=="Craftsman's Writ: Mana Potion","quete au nom du writ en francais")
+Q={} ns.ScanQuestLog()
+-- tooltip in French
+GameTooltip._scripts.OnTooltipCleared(GameTooltip)
+ns.lastWrit=nil
+GameTooltip.GetItem=function() return WFR, "|cffffffff|Hitem:50001::::|h["..WFR.."]|h|r" end
+GameTooltip._scripts.OnTooltipSetItem(GameTooltip)
+ok(ns.lastWrit=="Craftsman's Writ: Mana Potion","infobulle d'un writ en francais")
+GameTooltip._scripts.OnTooltipCleared(GameTooltip)
+-- known recipes in French
+GetNumTradeSkills=function() return 1 end
+GetTradeSkillLine=function() return "Alchimie",200,300 end
+GetTradeSkillInfo=function() return "Potion de mana","optimal" end
+GetTradeSkillItemLink=function() return "|Hitem:"..MP.."|h[Potion de mana]|h" end
+ns.ReadKnownRecipes()
+ok(ns.Char().known["Mana Potion"]==true and ns.Char().known["Potion de mana"]==nil,"recette connue lue en francais")
+GetTradeSkillItemLink=nil
+-- Coin Pouch and faction by ID
+ns.EXTRA_IDS["Coin Pouch"]=999002
+ok(ns.IsPouch(999002,"Bourse de pièces") and not ns.IsPouch(5,"Truc"),"bourse reconnue par son identifiant")
+ns.EXTRA_IDS["Coin Pouch"]=nil
+ns.FACTION_ID=1234
+GetNumFactions=function() return 1 end
+GetFactionInfo=function() return "Autorité commerciale d'Azeroth", "", 5, 3000, 9000, 4200, nil,nil,nil,nil,nil,nil,nil,1234 end
+ok(ns.FactionStanding()~=nil,"faction reconnue par son identifiant")
+ns.FACTION_ID=nil
+ok(ns.FactionStanding()==nil,"faction inconnue sans identifiant (client francais)")
+-- export: no IDs from a French client
+local tFr=ns.BuildExport()
+ok(not tFr:find("\nI;") and not tFr:find("\nF;"),"export francais : pas d'identifiants")
+-- English client: IDs exported, then imported by a French client
+GetLocale=function() return "enUS" end ns.ResetNames()
+GetFactionInfo=function() return "Azeroth Commerce Authority", "", 5, 3000, 9000, 4200, nil,nil,nil,nil,nil,nil,nil,1234 end
+ns.db.factionID=nil
+local tEn=ns.BuildExport()
+ok(tEn:find("\nI;Craftsman's Writ: Mana Potion;50001",1,true) and tEn:find("\nF;1234",1,true),"export anglais : identifiants du writ et de la faction")
+GetLocale=function() return "frFR" end ns.ResetNames()
+local savedIDs=ns.db.itemIDs ns.db.itemIDs={} ns.db.factionID=nil
+local r=ns.ApplyImport(tEn)
+ok(r and ns.db.itemIDs["Craftsman's Writ: Mana Potion"]==50001 and ns.db.factionID==1234,"import des identifiants (client francais)")
+ns.ResetNames() ns.PreloadNames()
+ok(ns.WritSearchText()=="Commande d'artisan","prefixe connu des l'import (identifiant du writ)")
+ns.db.itemIDs=savedIDs ns.db.factionID=nil
+ns.ResetNames() ns.db.locNames=nil
+local saved3=ns.db.itemIDs
+ns.db.itemIDs={["Craftsman's Writ: Mana Potion"]=60001, ["Craftsman's Writ: Elixir of Wisdom"]=60002}
+FR[60001]="Bon de commande (Potion de mana)" FR[60002]="Bon de commande (Elixir de sagesse)"
+ok(ns.WritSearchText()=="Bon de commande","writs d'une autre forme : texte de recherche = debut commun")
+ok(ns.CanonName("Bon de commande (Potion de mana)",60001)=="Craftsman's Writ: Mana Potion","writ d'une autre forme reconnu par son identifiant")
+ns.db.itemIDs=saved3
+-- back to the original client
+GetLocale=origGetLocale ns.ResetNames() ns.GetItemInfo=origGII2
+C_AuctionHouse=nil AuctionHouseFrame=nil
+GetNumFactions=nil GetFactionInfo=nil GetNumTradeSkills=nil GetTradeSkillLine=nil GetTradeSkillInfo=nil
+ns.db.scan[ns.RealmKey()]=sc
+ns.db.locNames=nil
+end
 
 -- ===== options page =====
 ok(settingsLog.frame ~= nil, "page de reglages enregistree")
